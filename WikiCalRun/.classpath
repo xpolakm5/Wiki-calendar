@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="woodstox-core-asl-4.2.0.jar"/>
+	<classpathentry kind="lib" path="woodstox-core-lgpl-4.2.0.jar"/>
+	<classpathentry kind="lib" path="msv-core-2010.2.jar"/>
+	<classpathentry kind="lib" path="stax2-api-3.1.1.jar"/>
+	<classpathentry kind="lib" path="woodstox-msv-rng-datatype-20020414.jar"/>
+	<classpathentry kind="lib" path="xsdlib-2010.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
