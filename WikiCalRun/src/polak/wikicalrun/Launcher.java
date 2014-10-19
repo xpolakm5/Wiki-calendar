@@ -25,7 +25,7 @@ public class Launcher {
 	private JFrame frmWikicalByXpolakm;
 	private JLabel lblSelectedSource;
 	
-	private File selectedFile = new File("C:\\Users\\LenovoTunerX\\Desktop\\mojamalawiki.xml");
+	private File selectedFile = new File("C:\\Users\\LenovoTunerX\\Desktop\\skwiki-latest-pages-articles.xml");
 	
 	/**
 	 * Launch the application.
