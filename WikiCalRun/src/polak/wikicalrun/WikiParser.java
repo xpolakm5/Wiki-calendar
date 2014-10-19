@@ -17,14 +17,16 @@ public class WikiParser {
 	File sourceFilePath;
 	int numberOfElements = 0;
 	int numberOfPeople = 0;
+	FileSave fileSave;
 	
 	public WikiParser(File sourceFilePath) {
 		this.sourceFilePath = sourceFilePath;
-		System.out.println("ide vo wiki");
+		
+		fileSave = new FileSave(sourceFilePath.getParent() + "\\WikiCalOutput.txt");			//output is saved where input is located
+		
 		try {
 			execute(sourceFilePath.getAbsolutePath());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -62,12 +64,14 @@ public class WikiParser {
         }
         System.out.println("Number of elements: " + numberOfElements);
         System.out.println("Number of people: " + numberOfPeople);
+        
+        fileSave.stopWritingToFile();
     }
     
     
     private void isStartElement(XMLStreamReader2 xmlStreamReader) throws Exception {
     	//System.out.print("#!!#"+xmlStreamReader.getNamespaceURI().toString()+"#!!#\n");
-        // System.out.println("<"+xmlStreamReader.getLocalName()+">");				//original was getName() - return with "{xmlns:namespace}"
+        // System.out.println("<"+xmlStreamReader.getLocalName()+">");					//original was getName() - return with "{xmlns:namespace}"
         
     	String currentStartTag = xmlStreamReader.getLocalName();
          
@@ -78,29 +82,43 @@ public class WikiParser {
          } 
          else {
 
-             if(currentStartTag.equals("text") && xmlStreamReader.hasNext()) {		//when start tag "text is found" (which contains all the needed data)...
+             if(currentStartTag.equals("text") && xmlStreamReader.hasNext()) {			//when start tag "text is found" (which contains all the needed data)...
              	//xmlStreamReader.next();												//... right here the text is read
 
              	while((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {
              	
-             	if(xmlStreamReader.hasText()) {										//sometimes there is no text in "text" field
-             		String wholeText = xmlStreamReader.getText();					//before it was getText - problems with short output!; getElementText
-             		
-             		//System.out.println("Text: " + wholeText);
-             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
-             	    String line;
-             	    
-             		while ((line = reader.readLine()) != null) {
-             			
-             	        if(line.matches("^ *\\| *Meno *=.*")) {
-             	        	System.out.println(line);
-             	        	numberOfPeople++;
-             	        }
-             	        else if(line.matches("^ *\\| *Dátum narodenia *=.*")) {
-             	        	System.out.println(line);
-             	        }
-             	    }
-             	}
+	             	if(xmlStreamReader.hasText()) {										//sometimes there is no text in "text" field
+	             		String wholeText = xmlStreamReader.getText();					//before it was getText - problems with short output!; getElementText
+	             		
+	             		//System.out.println("Text: " + wholeText);
+	             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
+	             	    String line;
+	             	    
+	             		while ((line = reader.readLine()) != null) {
+	             			
+	             	        if(line.matches("^ *\\| *Meno *=.*")) {
+	             	        	System.out.println(line);
+	             	        	fileSave.addLineToFile(line, false);
+	             	        	numberOfPeople++;
+	             	        }
+	             	        else if(line.matches("^ *\\| *Dátum narodenia *=.*")) {
+	             	        	System.out.println(line);
+	             	        	fileSave.addLineToFile(line, false);
+	             	        }
+	             	        else if(line.matches("^ *\\| *Narodenie *=.*")) {
+	             	        	System.out.println(line);
+	             	        	fileSave.addLineToFile(line, false);
+	             	        }
+	             	        else if(line.matches("^ *\\| *Dátum úmrtia *=.*")) {
+	             	        	System.out.println(line);
+	             	        	fileSave.addLineToFile(line, true);
+	             	        }
+	             	        else if(line.matches("^ *\\| *Úmrtie *=.*")) {
+	             	        	System.out.println(line);
+	             	        	fileSave.addLineToFile(line, true);
+	             	        }
+	             	    }
+	             	}
              	}
              }                    
          }
