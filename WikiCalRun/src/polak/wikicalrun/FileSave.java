@@ -10,10 +10,14 @@ import java.io.OutputStreamWriter;
 public class FileSave {
 
 	BufferedWriter bufferedWriter;
+	boolean firstRun = true;
 	
 	public FileSave(String pathToFile) {
 		File fout = new File(pathToFile);
 		FileOutputStream fos;
+		
+		firstRun = true;
+		
 		try {
 			fos = new FileOutputStream(fout);
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(fos));
@@ -25,10 +29,11 @@ public class FileSave {
 	
 	public void addLineToFile(String addingLine, boolean addNewLine) {
 		try {
-			bufferedWriter.write(addingLine);
-			if(addNewLine) {
+			if(addNewLine && !firstRun) {
 				bufferedWriter.newLine();
 			}
+			firstRun = false;
+			bufferedWriter.write(addingLine);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

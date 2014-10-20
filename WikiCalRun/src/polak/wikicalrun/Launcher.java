@@ -61,7 +61,7 @@ public class Launcher {
 		frmWikicalByXpolakm.setBackground(Color.WHITE);
 		frmWikicalByXpolakm.setForeground(Color.WHITE);
 		frmWikicalByXpolakm.setTitle("WikiCal by xpolakm5");
-		frmWikicalByXpolakm.setBounds(100, 100, 760, 380);
+		frmWikicalByXpolakm.setBounds(100, 100, 452, 233);
 		frmWikicalByXpolakm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -71,14 +71,14 @@ public class Launcher {
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 391, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(339, Short.MAX_VALUE))
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
 					.addContainerGap())
 		);
 		
@@ -88,10 +88,10 @@ public class Launcher {
 				btnGenerate();
 			}
 		});
-		btnGenerate.setBounds(294, 84, 85, 46);
+		btnGenerate.setBounds(318, 98, 85, 46);
 		
 		JButton btnSelectSource = new JButton("Select source");
-		btnSelectSource.setBounds(176, 84, 109, 46);
+		btnSelectSource.setBounds(197, 98, 109, 46);
 		btnSelectSource.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				selectFile();
@@ -100,7 +100,7 @@ public class Launcher {
 		panel.setLayout(null);
 		
 		lblSelectedSource = new JLabel("File is not selected");
-		lblSelectedSource.setBounds(16, 46, 363, 16);
+		lblSelectedSource.setBounds(16, 46, 387, 16);
 		lblSelectedSource.setEnabled(false);
 		panel.add(lblSelectedSource);
 		panel.add(btnSelectSource);

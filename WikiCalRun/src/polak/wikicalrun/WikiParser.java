@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
@@ -18,6 +20,7 @@ public class WikiParser {
 	int numberOfElements = 0;
 	int numberOfPeople = 0;
 	FileSave fileSave;
+	String lastTitle = "";
 	
 	public WikiParser(File sourceFilePath) {
 		this.sourceFilePath = sourceFilePath;
@@ -38,6 +41,7 @@ public class WikiParser {
     	System.out.println("filename: " + xmlFileName);
     	numberOfElements = 0;
     	numberOfPeople = 0;
+    	long startTime = System.currentTimeMillis();
     	
         InputStream xmlInputStream = new FileInputStream(xmlFileName);
         XMLInputFactory2 xmlInputFactory = (XMLInputFactory2)XMLInputFactory.newInstance();
@@ -65,6 +69,10 @@ public class WikiParser {
         System.out.println("Number of elements: " + numberOfElements);
         System.out.println("Number of people: " + numberOfPeople);
         
+        long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Time of generating output [ms]: " + totalTime);
+        
         fileSave.stopWritingToFile();
     }
     
@@ -74,18 +82,22 @@ public class WikiParser {
         // System.out.println("<"+xmlStreamReader.getLocalName()+">");					//original was getName() - return with "{xmlns:namespace}"
         
     	String currentStartTag = xmlStreamReader.getLocalName();
-         
+        
+    	
          if(currentStartTag.equals("title")) {
          	xmlStreamReader.next();
-         	//System.out.println("Title: " + xmlStreamReader.getText());
+         	lastTitle = xmlStreamReader.getText();
+         	//System.out.println("Title: " + lastTitle);
          	numberOfElements++;
          } 
          else {
 
+        	 /* Every person processing starts here (starts for every page) */
+        	 
              if(currentStartTag.equals("text") && xmlStreamReader.hasNext()) {			//when start tag "text is found" (which contains all the needed data)...
              	//xmlStreamReader.next();												//... right here the text is read
 
-             	while((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {
+             	while((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {				//.getText() return text in smaller parts, this reads it all
              	
 	             	if(xmlStreamReader.hasText()) {										//sometimes there is no text in "text" field
 	             		String wholeText = xmlStreamReader.getText();					//before it was getText - problems with short output!; getElementText
@@ -93,29 +105,43 @@ public class WikiParser {
 	             		//System.out.println("Text: " + wholeText);
 	             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
 	             	    String line;
-	             	    
+	             	   Pattern pattern = Pattern.compile("= *(.*?)$");
+	             	   
 	             		while ((line = reader.readLine()) != null) {
-	             			
-	             	        if(line.matches("^ *\\| *Meno *=.*")) {
-	             	        	System.out.println(line);
-	             	        	fileSave.addLineToFile(line, false);
+	             	        if(line.matches("^ *\\| *[Mm]eno *=.*") || line.matches("^ *\\| *[Pp]lné [Mm]eno *=.*")) {	//if line have: beggining of line, char '|', "Meno", char '=' 
+	             	        	//System.out.println(line);
+	             	        	Matcher matcher = pattern.matcher(line);
+	             	        	if (matcher.find())
+	             	        	{
+	             	        		String foundSubstring = matcher.group(1);
+	             	        	    //System.out.println(matcher.group(1));
+	             	        		if(!foundSubstring.equals("") && !foundSubstring.equals(" ")) {
+	             	        			if(foundSubstring.contains("{{PAGENAME}}")) {
+	             	        				fileSave.addLineToFile(lastTitle, true);
+	             	        			} else {
+	             	        				fileSave.addLineToFile(foundSubstring, true);
+	             	        			}
+	             	        		}
+	             	        		else {
+	             	        			System.out.println(foundSubstring + " lasttitle: " + lastTitle);
+	             	        		}
+	             	        	}
 	             	        	numberOfPeople++;
+	             	        }//|Dátum a miesto narodenia 
+	             	        else if(line.matches("^ *\\| *[Dd]átum narodenia *=.*") || line.matches("^ *\\| *[Nn]arodenie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto narodenia  *=.*")) {
+
+	             	        	Matcher matcher = pattern.matcher(line);
+	             	        	if (matcher.find())
+	             	        	{
+	             	        	   fileSave.addLineToFile("##" + matcher.group(1), false);
+	             	        	}
 	             	        }
-	             	        else if(line.matches("^ *\\| *Dátum narodenia *=.*")) {
-	             	        	System.out.println(line);
-	             	        	fileSave.addLineToFile(line, false);
-	             	        }
-	             	        else if(line.matches("^ *\\| *Narodenie *=.*")) {
-	             	        	System.out.println(line);
-	             	        	fileSave.addLineToFile(line, false);
-	             	        }
-	             	        else if(line.matches("^ *\\| *Dátum úmrtia *=.*")) {
-	             	        	System.out.println(line);
-	             	        	fileSave.addLineToFile(line, true);
-	             	        }
-	             	        else if(line.matches("^ *\\| *Úmrtie *=.*")) {
-	             	        	System.out.println(line);
-	             	        	fileSave.addLineToFile(line, true);
+	             	        else if(line.matches("^ *\\| *[Dd]átum úmrtia *=.*") || line.matches("^ *\\| *[Úú]mrtie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto úmrtia *=.*")) {
+	             	        	Matcher matcher = pattern.matcher(line);
+	             	        	if (matcher.find())
+	             	        	{
+	             	        	   fileSave.addLineToFile("$$" + matcher.group(1), false);
+	             	        	}
 	             	        }
 	             	    }
 	             	}
