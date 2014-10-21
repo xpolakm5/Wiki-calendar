@@ -76,13 +76,20 @@ public class WikiParser {
         fileSave.stopWritingToFile();
     }
     
-    
+    /**
+     * Called when while parsing XML file start element is found
+     * @param xmlStreamReader
+     * @throws Exception
+     */
     private void isStartElement(XMLStreamReader2 xmlStreamReader) throws Exception {
     	//System.out.print("#!!#"+xmlStreamReader.getNamespaceURI().toString()+"#!!#\n");
         // System.out.println("<"+xmlStreamReader.getLocalName()+">");					//original was getName() - return with "{xmlns:namespace}"
         
     	String currentStartTag = xmlStreamReader.getLocalName();
         
+    	String foundName = null;
+    	String foundBirthDate = null;
+    	String foundDeathDate = null;
     	
          if(currentStartTag.equals("title")) {
          	xmlStreamReader.next();
@@ -105,7 +112,7 @@ public class WikiParser {
 	             		//System.out.println("Text: " + wholeText);
 	             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
 	             	    String line;
-	             	   Pattern pattern = Pattern.compile("= *(.*?)$");
+	             	    Pattern pattern = Pattern.compile("= *(.*?)$");
 	             	   
 	             		while ((line = reader.readLine()) != null) {
 	             	        if(line.matches("^ *\\| *[Mm]eno *=.*") || line.matches("^ *\\| *[Pp]lné [Mm]eno *=.*")) {	//if line have: beggining of line, char '|', "Meno", char '=' 
@@ -115,15 +122,17 @@ public class WikiParser {
 	             	        	{
 	             	        		String foundSubstring = matcher.group(1);
 	             	        	    //System.out.println(matcher.group(1));
-	             	        		if(!foundSubstring.equals("") && !foundSubstring.equals(" ")) {
+	             	        		if(!foundSubstring.equals("") && !foundSubstring.equals(" ") && foundName == null) {	//it have to be null so it doesn't owerwrite good name with character from book		
 	             	        			if(foundSubstring.contains("{{PAGENAME}}")) {
-	             	        				fileSave.addLineToFile(lastTitle, true);
+	             	        				//fileSave.addLineToFile(lastTitle, true);
+	             	        				foundName = lastTitle;
 	             	        			} else {
-	             	        				fileSave.addLineToFile(foundSubstring, true);
+	             	        				//fileSave.addLineToFile(foundSubstring, true);
+	             	        				foundName = foundSubstring;
 	             	        			}
 	             	        		}
 	             	        		else {
-	             	        			System.out.println(foundSubstring + " lasttitle: " + lastTitle);
+	             	        			//System.out.println(foundSubstring + " lasttitle: " + lastTitle);
 	             	        		}
 	             	        	}
 	             	        	numberOfPeople++;
@@ -133,20 +142,46 @@ public class WikiParser {
 	             	        	Matcher matcher = pattern.matcher(line);
 	             	        	if (matcher.find())
 	             	        	{
-	             	        	   fileSave.addLineToFile("##" + matcher.group(1), false);
+	             	        		String birthDate = matcher.group(1);
+	             	        		if(!birthDate.equals("") && !birthDate.equals(" ")) {
+	             	        			foundBirthDate = birthDate;
+	             	        		}
+	             	        	   //fileSave.addLineToFile("##" + matcher.group(1), false);
 	             	        	}
 	             	        }
 	             	        else if(line.matches("^ *\\| *[Dd]átum úmrtia *=.*") || line.matches("^ *\\| *[Úú]mrtie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto úmrtia *=.*")) {
 	             	        	Matcher matcher = pattern.matcher(line);
 	             	        	if (matcher.find())
 	             	        	{
-	             	        	   fileSave.addLineToFile("$$" + matcher.group(1), false);
+	             	        		String deathDate = matcher.group(1);
+	             	        		if(!deathDate.equals("") && !deathDate.equals(" ")) {
+	             	        			foundDeathDate = deathDate;
+	             	        		}
+	             	        	   //fileSave.addLineToFile("$$" + matcher.group(1), false);
 	             	        	}
 	             	        }
 	             	    }
 	             	}
              	}
-             }                    
+             	
+             	//ak sa naslo meno a aspon jeden datum, ulozi sa do suboru
+             	
+             	if(foundName != null) {												//if name is found
+             		
+             		if(foundBirthDate != null || foundDeathDate != null) {			//if there is any time
+                 		fileSave.addLineToFile(foundName, true);
+                 		
+                 		if(foundBirthDate != null) {
+                 			fileSave.addLineToFile("##" + foundBirthDate, false);
+                 		}
+                 		if(foundDeathDate != null) {
+                 			fileSave.addLineToFile("$$" + foundDeathDate, false);
+                 		}
+             		}
+             	}
+             	
+             	//fileSave.addLineToFile("$$" + matcher.group(1), false); date of death
+             }
          }
     }
 }
