@@ -145,6 +145,7 @@ public class WikiParser {
 	             	        		String birthDate = matcher.group(1);
 	             	        		if(!birthDate.equals("") && !birthDate.equals(" ")) {
 	             	        			foundBirthDate = birthDate;
+	             	        			//parseDate(foundBirthDate);
 	             	        		}
 	             	        	   //fileSave.addLineToFile("##" + matcher.group(1), false);
 	             	        	}
@@ -156,6 +157,7 @@ public class WikiParser {
 	             	        		String deathDate = matcher.group(1);
 	             	        		if(!deathDate.equals("") && !deathDate.equals(" ")) {
 	             	        			foundDeathDate = deathDate;
+	             	        			parseDate(deathDate);
 	             	        		}
 	             	        	   //fileSave.addLineToFile("$$" + matcher.group(1), false);
 	             	        	}
@@ -183,5 +185,25 @@ public class WikiParser {
              	//fileSave.addLineToFile("$$" + matcher.group(1), false); date of death
              }
          }
+    }
+    
+    String parseDate(String sourceDate) {
+    	
+    	if(sourceDate.contains("dúv")) {
+    		//
+     	    Pattern pattern = Pattern.compile("\\{\\{dúv\\|(.*?)\\}\\}");		//{{dúv|(.*?)[}*]
+    		// Pattern pattern = Pattern.compile("\\{\\{dúv|(.*?)[\\}*]");
+     	   String foundSubstring = "";
+     	    
+        	Matcher matcher = pattern.matcher(sourceDate);
+        	if (matcher.find())
+        	{
+        		foundSubstring = matcher.group(1);
+        	}
+        	
+    		System.out.println(foundSubstring + "      original: " + sourceDate);
+    	}
+    	
+    	return null;
     }
 }
