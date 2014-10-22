@@ -104,11 +104,15 @@ public class WikiParser {
              if(currentStartTag.equals("text") && xmlStreamReader.hasNext()) {			//when start tag "text is found" (which contains all the needed data)...
              	//xmlStreamReader.next();												//... right here the text is read
 
+            	String wholeText = ""; 
+            	 
              	while((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {				//.getText() return text in smaller parts, this reads it all
              	
 	             	if(xmlStreamReader.hasText()) {										//sometimes there is no text in "text" field
-	             		String wholeText = xmlStreamReader.getText();					//before it was getText - problems with short output!; getElementText
-	             		
+	             		wholeText = wholeText + xmlStreamReader.getText();					//before it was getText - problems with short output!; getElementText
+	             	}
+             	}
+             	
 	             		//System.out.println("Text: " + wholeText);
 	             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
 	             	    String line;
@@ -156,8 +160,8 @@ public class WikiParser {
 	             	        	{
 	             	        		String deathDate = matcher.group(1);
 	             	        		if(!deathDate.equals("") && !deathDate.equals(" ")) {
-	             	        			foundDeathDate = deathDate;
-	             	        			parseDate(deathDate);
+	             	        			//foundDeathDate = deathDate;
+	             	        			foundDeathDate = parseDate(deathDate);
 	             	        		}
 	             	        	   //fileSave.addLineToFile("$$" + matcher.group(1), false);
 	             	        	}
@@ -174,24 +178,25 @@ public class WikiParser {
                  		fileSave.addLineToFile(foundName, true);
                  		
                  		if(foundBirthDate != null) {
-                 			fileSave.addLineToFile("##" + foundBirthDate, false);
+                 			//fileSave.addLineToFile("##" + foundBirthDate, false);
                  		}
                  		if(foundDeathDate != null) {
-                 			fileSave.addLineToFile("$$" + foundDeathDate, false);
+                 			fileSave.addLineToFile("," + foundDeathDate, false);
                  		}
              		}
              	}
              	
              	//fileSave.addLineToFile("$$" + matcher.group(1), false); date of death
              }
-         }
-    }
+
     
     String parseDate(String sourceDate) {
     	
-    	if(sourceDate.contains("dúv")) {
+    	String returnDate = "";
+    	
+    	if((sourceDate.contains("dúv") || sourceDate.contains("duv")) && !sourceDate.contains("rokumrtia|mesiac")) {
     		//
-     	    Pattern pattern = Pattern.compile("\\{\\{dúv\\|(.*?)\\}\\}");		//{{dúv|(.*?)[}*]
+     	    Pattern pattern = Pattern.compile("\\{\\{d[uú]v\\|(.*?)\\}\\}");		//{{dúv|(.*?)[}*]
     		// Pattern pattern = Pattern.compile("\\{\\{dúv|(.*?)[\\}*]");
      	   String foundSubstring = "";
      	    
@@ -199,11 +204,25 @@ public class WikiParser {
         	if (matcher.find())
         	{
         		foundSubstring = matcher.group(1);
+        		
+        		String[] tokens = foundSubstring.split("\\|");
+//        		for(int i = 0; i < tokens.length; i++) {
+//        			//System.out.println("Tokens: " + tokens[i]);
+//        		}
+
+        		if(tokens.length > 5) {
+        			returnDate = tokens[5] + "." + tokens[4] + "." + tokens[3] + "," + tokens[2] + "." + tokens[1] + "." + tokens[0];
+        		}
+        		else {
+        			return null;
+        		}
+
+        		System.out.println(returnDate + "      original: " + sourceDate);
         	}
         	
-    		System.out.println(foundSubstring + "      original: " + sourceDate);
+    		
     	}
     	
-    	return null;
+    	return returnDate;
     }
 }
