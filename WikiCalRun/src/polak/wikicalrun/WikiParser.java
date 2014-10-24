@@ -116,16 +116,31 @@ public class WikiParser {
 	             		//System.out.println("Text: " + wholeText);
 	             		BufferedReader reader = new BufferedReader(new StringReader(wholeText));
 	             	    String line;
-	             	    Pattern pattern = Pattern.compile("= *(.*?)$");
 	             	   
 	             		while ((line = reader.readLine()) != null) {
 	             	        if(line.matches("^ *\\| *[Mm]eno *=.*") || line.matches("^ *\\| *[Pp]lné [Mm]eno *=.*")) {	//if line have: beggining of line, char '|', "Meno", char '=' 
 	             	        	//System.out.println(line);
-	             	        	Matcher matcher = pattern.matcher(line);
-	             	        	if (matcher.find())
-	             	        	{
-	             	        		String foundSubstring = matcher.group(1);
-	             	        	    //System.out.println(matcher.group(1));
+	             	        	
+	     	             	    //Pattern pattern = Pattern.compile("= *(.*?)$");
+//	        	             	Pattern pattern = Pattern.compile("=[\\s\\p{Punct}]*(.*?)\\p{Punct}*$");
+//	             	        	Matcher matcher = pattern.matcher(line);
+	             	        	
+//	             	        	String name = line.replaceAll(".*?= *([\\w '().]+[^(]).*", "$1").trim();
+	             	        	//String name = line.replaceAll(".*?=[\\[ ]*([\\p{L}0-9|'. ()–]+).*", "$1").trim();
+
+	             	        	
+//	             	        	if (matcher.find())
+//	             	        	{
+	             	        		//String foundSubstring = matcher.group(1);
+	             	        	   // System.out.println(line + " new: " + foundSubstring);
+	             	        	
+	             	        	String foundSubstring = line.replaceAll(".*?=[\\[ ']*([\\p{L}0-9|'. ()–]+[\\p{L}.)]).*", "$1");
+	             	        	//System.out.println(line + " new: " + foundSubstring);
+	             	        	
+//	             	        	if(foundSubstring.contains("\\?")) {
+//	             	        		System.out.println(foundSubstring);
+//	             	        	}
+	             	        	
 	             	        		if(!foundSubstring.equals("") && !foundSubstring.equals(" ") && foundName == null) {	//it have to be null so it doesn't owerwrite good name with character from book		
 	             	        			if(foundSubstring.contains("{{PAGENAME}}")) {
 	             	        				//fileSave.addLineToFile(lastTitle, true);
@@ -138,11 +153,11 @@ public class WikiParser {
 	             	        		else {
 	             	        			//System.out.println(foundSubstring + " lasttitle: " + lastTitle);
 	             	        		}
-	             	        	}
+	//             	        	}
 	             	        	numberOfPeople++;
 	             	        }//|Dátum a miesto narodenia 
 	             	        else if(line.matches("^ *\\| *[Dd]átum narodenia *=.*") || line.matches("^ *\\| *[Nn]arodenie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto narodenia  *=.*")) {
-
+	             	        	Pattern pattern = Pattern.compile("= *(.*?)$");
 	             	        	Matcher matcher = pattern.matcher(line);
 	             	        	if (matcher.find())
 	             	        	{
@@ -155,6 +170,7 @@ public class WikiParser {
 	             	        	}
 	             	        }
 	             	        else if(line.matches("^ *\\| *[Dd]átum úmrtia *=.*") || line.matches("^ *\\| *[Úú]mrtie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto úmrtia *=.*")) {
+	             	        	 Pattern pattern = Pattern.compile("= *(.*?)$");
 	             	        	Matcher matcher = pattern.matcher(line);
 	             	        	if (matcher.find())
 	             	        	{
@@ -217,7 +233,7 @@ public class WikiParser {
         			return null;
         		}
 
-        		System.out.println(returnDate + "      original: " + sourceDate);
+        		//System.out.println(returnDate + "      original: " + sourceDate);
         	}
         	
     		
