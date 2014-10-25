@@ -17,15 +17,15 @@ import org.codehaus.stax2.XMLStreamReader2;
 public class WikiParser {
 
 	File sourceFilePath;
-	int numberOfElements = 0;
-	int numberOfPeople = 0;
+	//int numberOfElements = 0;
+	//int numberOfPeople = 0;
 	FileSave fileSave;
 	String lastTitle = "";
 
 	public WikiParser(File sourceFilePath) {
 		this.sourceFilePath = sourceFilePath;
 
-		fileSave = new FileSave(sourceFilePath.getParent() + "\\WikiCalOutput.txt");			// output is saved where input is located
+		fileSave = new FileSave(sourceFilePath.getParent() + "\\WikiCalOutput.txt");		// output is saved where input is located
 
 		try {
 			execute(sourceFilePath.getAbsolutePath());
@@ -37,8 +37,8 @@ public class WikiParser {
 	private void execute(String xmlFileName) throws Exception {
 
 		System.out.println("filename: " + xmlFileName);
-		numberOfElements = 0;
-		numberOfPeople = 0;
+		//numberOfElements = 0;
+		//numberOfPeople = 0;
 		long startTime = System.currentTimeMillis();
 
 		InputStream xmlInputStream = new FileInputStream(xmlFileName);
@@ -57,8 +57,8 @@ public class WikiParser {
 			}
 
 		}
-		System.out.println("Number of elements: " + numberOfElements);
-		System.out.println("Number of people: " + numberOfPeople);
+		//System.out.println("Number of elements: " + numberOfElements);
+		//System.out.println("Number of people: " + numberOfPeople);
 
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -84,19 +84,19 @@ public class WikiParser {
 		if (currentStartTag.equals("title")) {
 			xmlStreamReader.next();
 			lastTitle = xmlStreamReader.getText();
-			numberOfElements++;
+			//numberOfElements++;
 		} else {
 
 			/* Every person processing starts here (starts for every page) */
 
-			if (currentStartTag.equals("text") && xmlStreamReader.hasNext()) {			// when start tag "text is found" (which contains all the needed data)...
+			if (currentStartTag.equals("text") && xmlStreamReader.hasNext()) {				// when start tag "text is found" (which contains all the needed data)...
 
 				String wholeText = "";
 
-				while ((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {				// .getText() return text in smaller parts, this reads it all
+				while ((xmlStreamReader.next()) == XMLEvent.CHARACTERS) {					// .getText() return text in smaller parts, this reads it all
 
 					if (xmlStreamReader.hasText()) {										// sometimes there is no text in "text" field
-						wholeText = wholeText + xmlStreamReader.getText();				// before it was getText - problems with short output!; getElementText
+						wholeText = wholeText + xmlStreamReader.getText();					// before it was getText - problems with short output!; getElementText
 					}
 				}
 
@@ -111,7 +111,7 @@ public class WikiParser {
 						String foundSubstring = line.replaceAll(".*?=[\\[ ']*([\\p{L}0-9|'. ()–]+[\\p{L}.)]).*", "$1");
 						// System.out.println(line + " new: " + foundSubstring);
 
-						// it have to be null so it doesn't owerwrite good name with character from book
+						/* it have to be null so it doesn't owerwrite good name with character from book */
 						if (!foundSubstring.equals("") && !foundSubstring.equals(" ") && foundName == null) {
 							if (foundSubstring.contains("{{PAGENAME}}")) {
 								foundName = lastTitle;
@@ -119,7 +119,7 @@ public class WikiParser {
 								foundName = foundSubstring;
 							}
 
-							numberOfPeople++;
+							//numberOfPeople++;
 						}
 
 					} else if (line.matches("^ *\\| *[Dd]átum narodenia *=.*") || line.matches("^ *\\| *[Nn]arodenie *=.*") 
@@ -141,7 +141,7 @@ public class WikiParser {
 							String deathDate = matcher.group(1);
 							if (!deathDate.equals("") && !deathDate.equals(" ")) {
 								// foundDeathDate = deathDate;
-								foundDeathDate = parseDate(deathDate);
+								foundDeathDate = parseDate(deathDate);		//TODO zmeni sa na raw format, parsovat sa bude az dole
 							}
 						}
 					}
@@ -149,11 +149,11 @@ public class WikiParser {
 			}
 		}
 
-		// ak sa naslo meno a aspon jeden datum, ulozi sa do suboru
+		/* ak sa naslo meno a aspon jeden datum, ulozi sa do suboru */
 
-		if (foundName != null) {												// if name is found
+		if (foundName != null) {															// if name is found
 
-			if (foundBirthDate != null || foundDeathDate != null) {			// if there is any time
+			if (foundBirthDate != null || foundDeathDate != null) {							// if there is any time	//TODO az tu sa bude parsovat ak existuju raw data
 				fileSave.addLineToFile(foundName, true);
 
 				if (foundBirthDate != null) {
