@@ -1,4 +1,4 @@
-package polak.wikicalrun;
+package polak.parser;
 
 import java.io.BufferedWriter;
 import java.io.File;

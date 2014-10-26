@@ -1,4 +1,4 @@
-package polak.wikicalrun;
+package polak.parser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,11 +14,13 @@ import javax.xml.stream.events.XMLEvent;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 
+import polak.dataclasses.DeathBirthParsedData;
+
 public class WikiParser {
 
 	File sourceFilePath;
-	//int numberOfElements = 0;
-	//int numberOfPeople = 0;
+	// int numberOfElements = 0;
+	// int numberOfPeople = 0;
 	FileSave fileSave;
 	String lastTitle = "";
 
@@ -37,8 +39,8 @@ public class WikiParser {
 	private void execute(String xmlFileName) throws Exception {
 
 		System.out.println("filename: " + xmlFileName);
-		//numberOfElements = 0;
-		//numberOfPeople = 0;
+		// numberOfElements = 0;
+		// numberOfPeople = 0;
 		long startTime = System.currentTimeMillis();
 
 		InputStream xmlInputStream = new FileInputStream(xmlFileName);
@@ -57,8 +59,8 @@ public class WikiParser {
 			}
 
 		}
-		//System.out.println("Number of elements: " + numberOfElements);
-		//System.out.println("Number of people: " + numberOfPeople);
+		// System.out.println("Number of elements: " + numberOfElements);
+		// System.out.println("Number of people: " + numberOfPeople);
 
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -78,13 +80,17 @@ public class WikiParser {
 		String currentStartTag = xmlStreamReader.getLocalName();
 
 		String foundName = null;
+
+		String rawBirthDate = null;
+		String rawDeathDate = null;
+
 		String foundBirthDate = null;
 		String foundDeathDate = null;
 
 		if (currentStartTag.equals("title")) {
 			xmlStreamReader.next();
 			lastTitle = xmlStreamReader.getText();
-			//numberOfElements++;
+			// numberOfElements++;
 		} else {
 
 			/* Every person processing starts here (starts for every page) */
@@ -119,29 +125,26 @@ public class WikiParser {
 								foundName = foundSubstring;
 							}
 
-							//numberOfPeople++;
+							// numberOfPeople++;
 						}
 
-					} else if (line.matches("^ *\\| *[Dd]átum narodenia *=.*") || line.matches("^ *\\| *[Nn]arodenie *=.*") 
-							|| line.matches("^ *\\| *[Dd]átum a miesto narodenia  *=.*")) {
+					} else if (line.matches("^ *\\| *[Dd]átum narodenia *=.*") || line.matches("^ *\\| *[Nn]arodenie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto narodenia  *=.*")) {
 						Pattern pattern = Pattern.compile("= *(.*?)$");
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
 							String birthDate = matcher.group(1);
 							if (!birthDate.equals("") && !birthDate.equals(" ")) {
-								foundBirthDate = birthDate;
+								rawBirthDate = birthDate;
 								// parseDate(foundBirthDate);
 							}
 						}
-					} else if (line.matches("^ *\\| *[Dd]átum úmrtia *=.*") || line.matches("^ *\\| *[Úú]mrtie *=.*") 
-							|| line.matches("^ *\\| *[Dd]átum a miesto úmrtia *=.*")) {
+					} else if (line.matches("^ *\\| *[Dd]átum úmrtia *=.*") || line.matches("^ *\\| *[Úú]mrtie *=.*") || line.matches("^ *\\| *[Dd]átum a miesto úmrtia *=.*")) {
 						Pattern pattern = Pattern.compile("= *(.*?)$");
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
 							String deathDate = matcher.group(1);
 							if (!deathDate.equals("") && !deathDate.equals(" ")) {
-								// foundDeathDate = deathDate;
-								foundDeathDate = parseDate(deathDate);		//TODO zmeni sa na raw format, parsovat sa bude az dole
+								rawDeathDate = deathDate;
 							}
 						}
 					}
@@ -153,40 +156,62 @@ public class WikiParser {
 
 		if (foundName != null) {															// if name is found
 
-			if (foundBirthDate != null || foundDeathDate != null) {							// if there is any time	//TODO az tu sa bude parsovat ak existuju raw data
-				fileSave.addLineToFile(foundName, true);
-
-				if (foundBirthDate != null) {
-					// fileSave.addLineToFile("##" + foundBirthDate, false);
+			DeathBirthParsedData parsedData;
+			
+			if (rawDeathDate != null) {
+				parsedData = DateParser.parseDate(rawDeathDate);							//it could 
+				
+				if(parsedData == null) {
+					 parsedData = new DeathBirthParsedData();								//when parsedData returns null (avoiding nullpointerexception)
 				}
-				if (foundDeathDate != null) {
-					fileSave.addLineToFile("," + foundDeathDate, false);
+				
+				/* When deathDate found just date of death and not birth date */
+				if(parsedData.birthDate == null && rawBirthDate != null) {
+					
+					DeathBirthParsedData newBirthData = DateParser.parseDate(rawBirthDate);
+					if(newBirthData != null) {
+						if(newBirthData.birthDate != null) {
+							parsedData.birthDate = newBirthData.birthDate;
+							//System.out.println("prvy:  " + parsedData.birthDate);
+						}
+					}
+					
+					
 				}
+				
+				/* Now both dates are parsed and ready to be written (if they are not null) */
+				
+				if(parsedData != null && (parsedData.birthDate != null || parsedData.deathDate != null)) {
+					fileSave.addLineToFile(foundName, true);								//only names with at least one date will be saved
+					
+					if(parsedData.birthDate != null) {
+						fileSave.addLineToFile("," + parsedData.birthDate, false);
+						
+						if(parsedData.deathDate != null) {
+							fileSave.addLineToFile("," + parsedData.deathDate, false);
+						}
+					}
+				}
+				
+				
+				
 			}
+
+			/* Povodne - treba zmazat neskor */
+			
+//			if (rawBirthDate != null || rawDeathDate != null) {							// if there is any time //TODO az tu sa bude parsovat ak existuju raw data
+//				fileSave.addLineToFile(foundName, true);
+//
+//				// tu sa bude parsovat - parsovanie musi vracat vlastnu class, ktoru vytvorim (oba datumy a true/false ci je naozaj najdeny)
+//
+//				if (rawBirthDate != null) {
+//					// fileSave.addLineToFile("##" + foundBirthDate, false);
+//				}
+//				if (rawDeathDate != null) {
+//					fileSave.addLineToFile("," + foundDeathDate, false);
+//				}
+//			}
 		}
 	}
 
-	String parseDate(String sourceDate) {
-
-		String returnDate = "";
-
-		if ((sourceDate.contains("dúv") || sourceDate.contains("duv")) && !sourceDate.contains("rokumrtia|mesiac")) {
-			Pattern pattern = Pattern.compile("\\{\\{d[uú]v\\|(.*?)\\}\\}");
-			String foundSubstring = "";
-
-			Matcher matcher = pattern.matcher(sourceDate);
-			if (matcher.find()) {
-				foundSubstring = matcher.group(1);
-
-				String[] tokens = foundSubstring.split("\\|");
-
-				if (tokens.length > 5) {
-					returnDate = tokens[5] + "." + tokens[4] + "." + tokens[3] + "," + tokens[2] + "." + tokens[1] + "." + tokens[0];
-				} else {
-					return null;
-				}
-			}
-		}
-		return returnDate;
-	}
 }

@@ -22,6 +22,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextArea;
 
+import polak.parser.WikiParser;
 import polak.textoutputlib.TextAreaOutputStream;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
