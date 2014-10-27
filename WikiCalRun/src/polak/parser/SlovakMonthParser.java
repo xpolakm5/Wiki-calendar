@@ -2,6 +2,11 @@ package polak.parser;
 
 public class SlovakMonthParser {
 	
+	/**
+	 * Parse name of month to number
+	 * @param month string containing 1 of 12 months in Slovak language
+	 * @return number of month or null if month wasn't parsed
+	 */
 	public static String getMonthNumber(String month) {
 		
 		if(month.matches(".*[Jj]anu[aá]r.*")) {
@@ -41,7 +46,7 @@ public class SlovakMonthParser {
 			return "12";
 		}
 		else {
-			System.out.println("MY_WARNING: Unrecognized month: " + month);
+			//System.out.println("MY_WARNING: Unrecognized month: " + month);
 			return "";
 		}
 	}

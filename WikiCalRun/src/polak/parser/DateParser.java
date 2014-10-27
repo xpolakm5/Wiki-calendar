@@ -7,10 +7,15 @@ import polak.dataclasses.DeathBirthParsedData;
 
 public class DateParser {
 
-	public static DeathBirthParsedData parseDate(String sourceDate) {
-
-		if ((sourceDate.contains("dúv") || sourceDate.contains("duv")) && !sourceDate.contains("rokumrtia|mesiac")) {
-			Pattern pattern = Pattern.compile("\\{\\{d[uú]v\\|(.*?)\\}\\}");
+	public static DeathBirthParsedData parseDeathDate(String sourceDate) {
+		
+		if ((sourceDate.matches(".*d[uú]v\\|[0-9].*"))) {
+			
+			if(sourceDate.contains("RRRR")) {
+				System.out.println("");
+			}
+			
+			Pattern pattern = Pattern.compile("\\{\\{d[uú]v\\|([0-9]+.*?)\\}\\}");
 			String foundSubstring = "";
 
 			Matcher matcher = pattern.matcher(sourceDate);
@@ -26,9 +31,17 @@ public class DateParser {
 					return null;
 				}
 			}
-		}
-		else if (sourceDate.contains("dnv")) {									//{{dnv|1941|2|19}}, returns just date of birth
+		} else {
 			
+			return new DeathBirthParsedData(null, parseSimpleTime(sourceDate));
+		}
+		return null;
+	}
+
+	public static String parseSimpleTime(String sourceDate) {
+		
+		if (sourceDate.matches(".*dnv\\|[0-9].*")) {									// {{dnv|1941|2|19}}, returns just date of birth
+
 			Pattern pattern = Pattern.compile("\\{\\{dnv\\|(.*?)\\}\\}");
 			String foundSubstring = "";
 
@@ -37,25 +50,21 @@ public class DateParser {
 				foundSubstring = matcher.group(1);
 
 				String[] tokens = foundSubstring.split("\\|");
-				
+
 				if (tokens.length > 2) {
-					
-					return new DeathBirthParsedData(tokens[2] + "." + tokens[1] + "." + tokens[0]);
+
+					return new String(tokens[2] + "." + tokens[1] + "." + tokens[0]);
 				} else {
 					return null;
 				}
 			}
-		}
-		else if(sourceDate.matches("\\[\\[.*\\]\\] \\[\\[[0-9]*\\]\\]")) {		//[[23. január]] [[1840]]
-			//System.out.println("druhy: " + sourceDate + " mesiac: " + SlovakMonthParser.getMonthNumber(sourceDate));
-			
-			
-			
-			String foundSubstringDay = "";
+		} else if (sourceDate.matches("\\[\\[[0-9].*\\]\\] \\[\\[[0-9]*\\]\\].*")) {		// [[23. január]] [[1840]]
+
+			String foundSubstringDay = null;
 			String foundSubstringMonth = SlovakMonthParser.getMonthNumber(sourceDate);
 			String foundSubstringYear = "";
 
-			/* Date and month search*/
+			/* Date and month search */
 			Pattern pattern = Pattern.compile(".*\\[\\[([0-9]{1,2})\\.");
 			Matcher matcher = pattern.matcher(sourceDate);
 			if (matcher.find()) {
@@ -64,21 +73,32 @@ public class DateParser {
 
 			/* Year search */
 			pattern = Pattern.compile(".*\\[\\[([0-9]{1,4})\\]\\]");
-			
 
 			matcher = pattern.matcher(sourceDate);
 			if (matcher.find()) {
 				foundSubstringYear = matcher.group(1);
 			}
-			
-			System.out.println("povodny: " + sourceDate + " teraz: " + foundSubstringDay + "." + foundSubstringMonth + "." + foundSubstringYear);
-		
-			//TODO povodny: [[Košice]] [[1619]] teraz: ..1619
-			//povodny: [[11. september]] [[1063]] teraz: 11.9.1063
-			
-			// poifovat ked je ze iba mesiac a rok a iba mesiac alebo vsetko a dat to do stringu nejak (aby sa to potom dalo vyhladavat)
+			/* transform [[11. september]] [[1063]] -> 11.9.1063 */
+
+			if (foundSubstringDay != null && foundSubstringMonth != null && foundSubstringYear != null) {
+				return new String(foundSubstringDay + "." + foundSubstringMonth + "." + foundSubstringYear);
+			} else if (foundSubstringMonth != null && foundSubstringYear != null) {
+				return new String("." + foundSubstringMonth + "." + foundSubstringYear);
+			} else if (foundSubstringYear != null) {
+				return new String("." + "." + foundSubstringYear);
+			}
 		}
-		
+		else if(sourceDate.matches(".*\\[\\[[0-9]*\\]\\].*")) {					//just year
+			/* Year search */
+			Pattern pattern = Pattern.compile(".*\\[\\[([0-9]{1,4})\\]\\]");
+
+			Matcher matcher = pattern.matcher(sourceDate);
+			if (matcher.find()) {
+				return new String("." + "." + matcher.group(1));
+			}
+		}
+
 		return null;
 	}
+
 }
