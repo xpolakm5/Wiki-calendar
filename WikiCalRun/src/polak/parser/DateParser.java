@@ -88,9 +88,18 @@ public class DateParser {
 				return new String("." + "." + foundSubstringYear);
 			}
 		}
-		else if(sourceDate.matches(".*\\[\\[[0-9]*\\]\\].*")) {					//just year
+		else if(sourceDate.matches(" *\\[\\[[0-9]*\\]\\].*")) {					//just year
 			/* Year search */
-			Pattern pattern = Pattern.compile(".*\\[\\[([0-9]{1,4})\\]\\]");
+			Pattern pattern = Pattern.compile(" *\\[\\[([0-9]{1,4})\\]\\]");
+
+			Matcher matcher = pattern.matcher(sourceDate);
+			if (matcher.find()) {
+				return new String("." + "." + matcher.group(1));
+			}
+		}
+		else if(sourceDate.matches(" *[0-9]{1,4} *")) {					//just year
+			/* Year search */
+			Pattern pattern = Pattern.compile(" *([0-9]{1,4}) *");
 
 			Matcher matcher = pattern.matcher(sourceDate);
 			if (matcher.find()) {

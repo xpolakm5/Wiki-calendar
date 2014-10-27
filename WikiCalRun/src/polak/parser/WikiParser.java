@@ -14,6 +14,8 @@ import javax.xml.stream.events.XMLEvent;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 
+import com.sun.org.apache.xpath.internal.FoundIndex;
+
 import polak.dataclasses.DeathBirthParsedData;
 
 public class WikiParser {
@@ -72,10 +74,15 @@ public class WikiParser {
 
 		String currentStartTag = xmlStreamReader.getLocalName();
 
+		/* persons */
 		String foundName = null;
-
 		String rawBirthDate = null;
 		String rawDeathDate = null;
+
+		/* titles */
+		String foundTitle = null;
+		String rawStartDate = null;
+		String rawEndDate = null;
 
 		if (currentStartTag.equals("title")) {
 			xmlStreamReader.next();
@@ -98,7 +105,8 @@ public class WikiParser {
 				String line;
 
 				while ((line = reader.readLine()) != null) {
-					// if line have: beggining of line, char '|', "Meno", char '='
+
+					/* Parsing people */
 					if (line.matches("^ *\\| *[Mm]eno *=.*") || line.matches("^ *\\| *[Pp]lné [Mm]eno *=.*")) {
 
 						String foundSubstring = line.replaceAll(".*?=[\\[ ']*([\\p{L}0-9|'. ()–]+[\\p{L}.)]).*", "$1");
@@ -131,6 +139,43 @@ public class WikiParser {
 							}
 						}
 					}
+
+					/* Parsing "zalozenie, zatvorenie" (e.g. STU) */
+
+					else if (line.matches("^ *\\| *[Nn][aá]zov *=.*")) {
+
+						Pattern pattern = Pattern.compile("= *(.*?)$");
+						Matcher matcher = pattern.matcher(line);
+						if (matcher.find()) {
+							String foundSubstring = matcher.group(1);
+
+						//String foundSubstring = line.replaceAll(".*?=[\\[ ']*([\\p{L}0-9|'. ()]+[\\p{L}.)]).*", "$1");
+						
+							/* it have to be null so it doesn't owerwrite good title */
+							if (!foundSubstring.equals("") && !foundSubstring.equals(" ") && foundTitle == null) {
+								if (foundSubstring.contains("{{PAGENAME}}") || foundSubstring.matches(".*[Nn][aá]zov.*")) {
+									foundTitle = lastTitle;
+								} else {
+									foundTitle = foundSubstring;
+								}
+								
+								//System.out.println("title: " + foundTitle);
+							}
+						}
+					}
+					else if (line.matches("^ *\\| *[Rr]ok zalo[zž]enia *=.*") || line.matches("^ *\\| *[Pp]rv[aá] zmienka *=.*")) {	// | Prvá zmienka
+
+						Pattern pattern = Pattern.compile("= *(.*?)$");
+						Matcher matcher = pattern.matcher(line);
+						if (matcher.find()) {
+							String foundSubstring = matcher.group(1);
+
+							if (!foundSubstring.equals("") && !foundSubstring.equals(" ")) {
+								rawStartDate = foundSubstring;
+								//System.out.println("date: " + foundSubstring);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -152,16 +197,24 @@ public class WikiParser {
 			/* When deathDate found just date of death and not birth date */
 			if (parsedData.birthDate == null && rawBirthDate != null) {
 
+				/* When birth date wasn't found from date of death */
 				String birthParsed = DateParser.parseSimpleTime(rawBirthDate);
 				if (birthParsed != null) {
 					parsedData.birthDate = birthParsed;
 				}
 			}
 
-			writeToFile(parsedData, foundName);
-
-			/* When birth date wasn't found from date of death */
-
+			if (parsedData != null && (parsedData.birthDate != null || parsedData.deathDate != null)) {
+				writeToFile(parsedData, foundName);
+			}
+		}
+		
+		if (foundTitle != null && (rawStartDate != null)) {								//it's possible that foundTitle have also foundName (cannot be else if)
+			// TODO urobit ukladanie do suboru!!!
+			String parsedStartDate = DateParser.parseSimpleTime(rawStartDate);
+			if(parsedStartDate != null) {
+				System.out.println("parsed: " + foundTitle + " datum: " + parsedStartDate);
+			}
 		}
 	}
 
@@ -170,19 +223,18 @@ public class WikiParser {
 	 */
 	private void writeToFile(DeathBirthParsedData parsedData, String foundName) {
 
-		if (parsedData != null && (parsedData.birthDate != null || parsedData.deathDate != null)) {
-			fileSave.addLineToFile(foundName, true);								// only names with at least one date will be saved
+		fileSave.addLineToFile(foundName, true);								// only names with at least one date will be saved
 
-			if (parsedData.birthDate != null) {
-				fileSave.addLineToFile("," + parsedData.birthDate, false);
+		if (parsedData.birthDate != null) {
+			fileSave.addLineToFile("," + parsedData.birthDate, false);
 
-			} else {
-				fileSave.addLineToFile(",", false);
-			}
-
-			if (parsedData.deathDate != null) {
-				fileSave.addLineToFile("," + parsedData.deathDate, false);
-			}
+		} else {
+			fileSave.addLineToFile(",", false);
 		}
+
+		if (parsedData.deathDate != null) {
+			fileSave.addLineToFile("," + parsedData.deathDate, false);
+		}
+
 	}
 }
