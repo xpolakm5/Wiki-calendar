@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 public class FileSave {
 
@@ -20,13 +21,24 @@ public class FileSave {
 
 		try {
 			fos = new FileOutputStream(fout);
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(fos));
+			try {
+				bufferedWriter = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 
 	}
 
+	/**
+	 * Add line to created file
+	 * @param addingLine
+	 * @param addNewLine true - before line is added end of line
+	 */
 	public void addLineToFile(String addingLine, boolean addNewLine) {
 		try {
 			if (addNewLine && !firstRun) {

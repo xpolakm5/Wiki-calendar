@@ -14,21 +14,22 @@ import javax.xml.stream.events.XMLEvent;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 
-import com.sun.org.apache.xpath.internal.FoundIndex;
-
 import polak.dataclasses.DeathBirthParsedData;
+import polak.settings.Settings;
 
 public class WikiParser {
 
 	File sourceFilePath;
-	FileSave fileSave;
+	FileSave fileSavePeople;											// output file with people names, dates of birth and death
+	FileSave fileSaveEvents;											// output file with events, things, universities, ...
 	String lastTitle = "";
 
 	public WikiParser(File sourceFilePath) {
 		this.sourceFilePath = sourceFilePath;
 
-		fileSave = new FileSave(sourceFilePath.getParent() + "\\WikiCalOutput.txt");		// output is saved where input is located
-
+		fileSavePeople = new FileSave(sourceFilePath.getParent() + Settings.nameOfPeopleFile);		// output is saved where input is located
+		fileSaveEvents = new FileSave(sourceFilePath.getParent() + Settings.nameOfEventsFile);
+		
 		try {
 			execute(sourceFilePath.getAbsolutePath());
 		} catch (Exception e) {
@@ -59,9 +60,10 @@ public class WikiParser {
 
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
-		System.out.println("Time of generating output [ms]: " + totalTime);
+		System.out.println("Operation was successfull. Time of generating output was " + totalTime + " [ms]");
 
-		fileSave.stopWritingToFile();
+		fileSavePeople.stopWritingToFile();
+		fileSaveEvents.stopWritingToFile();
 	}
 
 	/**
@@ -140,6 +142,7 @@ public class WikiParser {
 						}
 					}
 
+					
 					/* Parsing "zalozenie, zatvorenie" (e.g. STU) */
 
 					else if (line.matches("^ *\\| *[Nn][aá]zov *=.*")) {
@@ -176,6 +179,23 @@ public class WikiParser {
 							}
 						}
 					}
+					
+//					else if (line.matches("^ *\\| *Rok zatvorenia *=.*") ) {//|| line.matches("^ *\\| *[Pp]rv[aá] zmienka *=.*")) {	// | Prvá zmienka
+//
+//						System.out.println("zatvorenie: " + line);
+//						
+//						Pattern pattern = Pattern.compile("= *(.*?)$");
+//						Matcher matcher = pattern.matcher(line);
+//						if (matcher.find()) {
+//							String foundSubstring = matcher.group(1);
+//
+//							if (!foundSubstring.equals("") && !foundSubstring.equals(" ")) {
+//								rawStartDate = foundSubstring;
+//								//System.out.println("date: " + foundSubstring);
+//							}
+//						}
+//					}
+					
 				}
 			}
 		}
@@ -213,7 +233,8 @@ public class WikiParser {
 			// TODO urobit ukladanie do suboru!!!
 			String parsedStartDate = DateParser.parseSimpleTime(rawStartDate);
 			if(parsedStartDate != null) {
-				System.out.println("parsed: " + foundTitle + " datum: " + parsedStartDate);
+				//System.out.println("parsed: " + foundTitle + " datum: " + parsedStartDate);
+				fileSaveEvents.addLineToFile(foundTitle + "," + parsedStartDate, true);
 			}
 		}
 	}
@@ -223,17 +244,17 @@ public class WikiParser {
 	 */
 	private void writeToFile(DeathBirthParsedData parsedData, String foundName) {
 
-		fileSave.addLineToFile(foundName, true);								// only names with at least one date will be saved
+		fileSavePeople.addLineToFile(foundName, true);								// only names with at least one date will be saved
 
 		if (parsedData.birthDate != null) {
-			fileSave.addLineToFile("," + parsedData.birthDate, false);
+			fileSavePeople.addLineToFile("," + parsedData.birthDate, false);
 
 		} else {
-			fileSave.addLineToFile(",", false);
+			fileSavePeople.addLineToFile(",", false);
 		}
 
 		if (parsedData.deathDate != null) {
-			fileSave.addLineToFile("," + parsedData.deathDate, false);
+			fileSavePeople.addLineToFile("," + parsedData.deathDate, false);
 		}
 
 	}

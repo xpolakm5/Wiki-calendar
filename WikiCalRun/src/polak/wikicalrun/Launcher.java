@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
@@ -23,6 +24,9 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextArea;
 
 import polak.parser.WikiParser;
+import polak.search.SearchParsed;
+import polak.settings.Settings;
+import polak.tester.PeopleOutputTest;
 import polak.textoutputlib.TextAreaOutputStream;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -34,10 +38,14 @@ public class Launcher {
 	private JFrame frmWikicalByXpolakm;
 	private JLabel lblSelectedSource;
 	
-	private File selectedFile = new File("C:\\Users\\LenovoTunerX\\Desktop\\skwiki-latest-pages-articles.xml");
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private File selectedFile = new File(Settings.defaultSelectedFile);
+	private File selectedFolder = new File(Settings.defaultSelectedFolder);
+	private JTextField txtDate;
+	private JTextField txtName;
+	private JTextField txtEvent;
+	private JTextArea txtConsole;
+	private JList listOutput;
+	private DefaultListModel listModel;
 	
 	/**
 	 * Launch the application.
@@ -88,7 +96,7 @@ public class Launcher {
 		lblSelectedSource.setText(selectedFile.getAbsolutePath());
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(null, "Parsed file", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Folder of parsed files", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBorder(new TitledBorder(null, "Searching", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -128,17 +136,27 @@ public class Launcher {
 		lblDate.setBounds(12, 25, 126, 16);
 		panel_2.add(lblDate);
 		
-		textField = new JTextField();
-		textField.setBounds(293, 25, 116, 22);
-		panel_2.add(textField);
-		textField.setColumns(10);
+		txtDate = new JTextField();
+		txtDate.setBounds(293, 25, 116, 22);
+		panel_2.add(txtDate);
+		txtDate.setColumns(10);
 		
 		JButton btnNewButton = new JButton("Serach");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchParsed();
+			}
+		});
 		btnNewButton.setToolTipText("Write just in one box! Other must be empty.");
 		btnNewButton.setBounds(293, 112, 116, 46);
 		panel_2.add(btnNewButton);
 		
 		JButton btnClearAllFields = new JButton("Clear all fields");
+		btnClearAllFields.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearAllFields();
+			}
+		});
 		btnClearAllFields.setBounds(165, 112, 116, 46);
 		panel_2.add(btnClearAllFields);
 		
@@ -146,53 +164,50 @@ public class Launcher {
 		lblName.setBounds(12, 54, 56, 16);
 		panel_2.add(lblName);
 		
-		textField_1 = new JTextField();
-		textField_1.setBounds(293, 54, 116, 22);
-		panel_2.add(textField_1);
-		textField_1.setColumns(10);
+		txtName = new JTextField();
+		txtName.setBounds(293, 54, 116, 22);
+		panel_2.add(txtName);
+		txtName.setColumns(10);
 		
 		JLabel lblEvent = new JLabel("Historic moment / thing / institution:");
 		lblEvent.setBounds(12, 83, 221, 16);
 		panel_2.add(lblEvent);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(293, 83, 116, 22);
-		panel_2.add(textField_2);
-		textField_2.setColumns(10);
+		txtEvent = new JTextField();
+		txtEvent.setBounds(293, 83, 116, 22);
+		panel_2.add(txtEvent);
+		txtEvent.setColumns(10);
 		
 		JPanel panel_4 = new JPanel();
 		panel_4.setBounds(12, 173, 397, 231);
 		panel_2.add(panel_4);
 		
+		listModel = new DefaultListModel();
+		listOutput = new JList(listModel);
 		
-		DefaultListModel listModel = new DefaultListModel();
-		listModel.addElement("Jane Doe");
-		listModel.addElement("John Smith");
-		JList list = new JList(listModel);
+	    JList list = new JList(listModel);
 		
-		JScrollPane scrollPane_1 = new JScrollPane(list);
+		JScrollPane scrollPane_1 = new JScrollPane(listOutput);
 		scrollPane_1.setPreferredSize(new Dimension(400,250));  
 		panel_4.add(scrollPane_1);
 		
 		
 		//panel_4.add(list);
 		
-		JTextArea txtrGafda = new JTextArea();
+		txtConsole = new JTextArea();
 		
 
 		
 		/* Output from System.out.println is displayed in GUI of application */
 		//TODO
-//        TextAreaOutputStream taos = new TextAreaOutputStream( txtrGafda, 60 );
-//        PrintStream ps = new PrintStream( taos );
-//        System.setOut( ps );
-//        System.setErr( ps );
+        TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
+        PrintStream ps = new PrintStream( taos );
+        System.setOut( ps );
+        System.setErr( ps );
 		
-		JScrollPane scrollPane = new JScrollPane(txtrGafda);
+		JScrollPane scrollPane = new JScrollPane(txtConsole);
 		scrollPane.setPreferredSize(new Dimension(400,380));  
 		panel_3.add(scrollPane);
-		
-		txtrGafda.setText("gafda");
 		//panel_3.add(txtrGafda);
 		
 		JButton btnGenerate = new JButton("Generate");
@@ -214,21 +229,46 @@ public class Launcher {
 		});
 		panel_1.setLayout(null);
 		
-		JLabel lblPathNotSelected = new JLabel("FILE NOT SELECTED");
-		lblPathNotSelected.setEnabled(false);
-		lblPathNotSelected.setBounds(12, 26, 132, 16);
-		panel_1.add(lblPathNotSelected);
+		final JLabel lblSelectedFolder = new JLabel(selectedFolder.getAbsolutePath());
+		lblSelectedFolder.setEnabled(false);
+		lblSelectedFolder.setBounds(12, 26, 386, 16);
+		panel_1.add(lblSelectedFolder);
 		
-		JButton btnSelectParsedFile = new JButton("Select parsed file");
+		JButton btnSelectParsedFile = new JButton("Select parsed folder");
 		btnSelectParsedFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				System.out.println("asf asdf");
+				final JFileChooser fc = new JFileChooser();
+
+				//FileNameExtensionFilter filter = new FileNameExtensionFilter("xml", "XML");
+				//fc.setFileFilter(filter);
+				
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
+				int returnVal = fc.showOpenDialog(null);
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		            File file = fc.getSelectedFile();
+		            //This is where a real application would open the file.
+		            System.out.println("Opening: " + file.getName() + ".");
+		            lblSelectedFolder.setText(file.getAbsolutePath());
+		            selectedFolder = file;
+		        } else {
+		        	System.out.println("Open command cancelled by user.");
+		        }
 				
 			}
 		});
-		btnSelectParsedFile.setBounds(266, 68, 132, 46);
+		btnSelectParsedFile.setBounds(251, 68, 147, 46);
 		panel_1.add(btnSelectParsedFile);
+		
+		JButton btnRunUnityTest = new JButton("Run unity test");
+		btnRunUnityTest.setBounds(12, 68, 123, 46);
+		panel_1.add(btnRunUnityTest);
+		btnRunUnityTest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnTest();
+			}
+		});
 		frmWikicalByXpolakm.getContentPane().setLayout(groupLayout);
 	}
 
@@ -266,6 +306,30 @@ public class Launcher {
 	}
 	
 	private void btnGenerate() {
-		WikiParser wikiParser = new WikiParser(selectedFile);
+		new WikiParser(selectedFile);
+	}
+	
+	private void btnTest() {
+		new PeopleOutputTest(selectedFolder.getAbsolutePath());
+	}
+	
+	private void searchParsed() {
+		txtConsole.setText("");
+		SearchParsed searchParsed = new SearchParsed(txtDate.getText(), txtName.getText(), txtEvent.getText(), selectedFolder);
+		List<String> foundStrings = searchParsed.searchParsed();
+		
+		if(foundStrings != null) {
+		
+			for(String str : foundStrings) {
+				listModel.addElement(str);
+			}
+		}
+	}
+	
+	private void clearAllFields() {
+		txtDate.setText("");
+		txtEvent.setText("");
+		txtName.setText("");
+		txtConsole.setText("");
 	}
 }
