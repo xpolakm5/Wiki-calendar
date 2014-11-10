@@ -36,13 +36,17 @@ public class SearchParsed {
 		
 		if(selectedFilePeople.exists() && selectedFileEvents.exists()) {
 			if(!txtDate.equals("")) {
-				return findSubString(txtDate, selectedFilePeople);
+				List<String> listOfPeople = findSubString(txtDate, selectedFilePeople);
+				List<String> listOfEvents = findSubString(txtDate, selectedFileEvents);
+				listOfPeople.addAll(listOfEvents);
+				
+				return listOfPeople;
 			}
 			else if(!txtName.equals("")) {
-				return findSubString(txtDate, selectedFilePeople);
+				return findSubString(txtName, selectedFilePeople);
 			}
 			else if(!txtEvent.equals("")) {
-				return findSubString(txtDate, selectedFilePeople);
+				return findSubString(txtEvent, selectedFileEvents);
 			}
 		}
 		else {

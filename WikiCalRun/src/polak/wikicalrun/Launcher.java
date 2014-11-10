@@ -4,8 +4,12 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -185,14 +189,19 @@ public class Launcher {
 		listModel = new DefaultListModel();
 		listOutput = new JList(listModel);
 		
-	    JList list = new JList(listModel);
+		
+		MouseListener mouseListener = new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				if(evt.getClickCount() == 2) {
+					mouseClickedOutputList((String) listOutput.getSelectedValue());
+				}
+			}
+		};
+		listOutput.addMouseListener(mouseListener);
 		
 		JScrollPane scrollPane_1 = new JScrollPane(listOutput);
 		scrollPane_1.setPreferredSize(new Dimension(400,250));  
 		panel_4.add(scrollPane_1);
-		
-		
-		//panel_4.add(list);
 		
 		txtConsole = new JTextArea();
 		
@@ -201,9 +210,14 @@ public class Launcher {
 		/* Output from System.out.println is displayed in GUI of application */
 		//TODO
         TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
-        PrintStream ps = new PrintStream( taos );
-        System.setOut( ps );
-        System.setErr( ps );
+        PrintStream ps;
+		try {
+			ps = new PrintStream( taos , true, "UTF-8");
+	        System.setOut( ps );
+	        System.setErr( ps );
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
 		
 		JScrollPane scrollPane = new JScrollPane(txtConsole);
 		scrollPane.setPreferredSize(new Dimension(400,380));  
@@ -314,16 +328,18 @@ public class Launcher {
 	}
 	
 	private void searchParsed() {
-		txtConsole.setText("");
+		//txtConsole.setText("");
 		SearchParsed searchParsed = new SearchParsed(txtDate.getText(), txtName.getText(), txtEvent.getText(), selectedFolder);
 		List<String> foundStrings = searchParsed.searchParsed();
+		
+		listModel.clear();
 		
 		if(foundStrings != null) {
 		
 			for(String str : foundStrings) {
 				listModel.addElement(str);
 			}
-		}
+		}		
 	}
 	
 	private void clearAllFields() {
@@ -331,5 +347,10 @@ public class Launcher {
 		txtEvent.setText("");
 		txtName.setText("");
 		txtConsole.setText("");
+		listModel.clear();
+	}
+	
+	private void mouseClickedOutputList(String dataString) {
+		System.out.println("selected " + dataString);
 	}
 }
