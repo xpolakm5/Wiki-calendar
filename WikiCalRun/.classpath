@@ -8,5 +8,12 @@
 	<classpathentry kind="lib" path="woodstox-msv-rng-datatype-20020414.jar"/>
 	<classpathentry kind="lib" path="xsdlib-2010.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lucene-core-4.10.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/LenovoTunerX/Downloads/lucene-4.10.2/docs/core/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lucene-analyzers-common-4.10.2.jar"/>
+	<classpathentry kind="lib" path="lucene-queryparser-4.10.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

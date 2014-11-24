@@ -234,7 +234,7 @@ public class WikiParser {
 			String parsedStartDate = DateParser.parseSimpleTime(rawStartDate);
 			if(parsedStartDate != null) {
 				//System.out.println("parsed: " + foundTitle + " datum: " + parsedStartDate);
-				fileSaveEvents.addLineToFile(foundTitle + "," + parsedStartDate, true);
+				fileSaveEvents.addLineToFile(foundTitle + ";" + parsedStartDate, true);
 			}
 		}
 	}
@@ -247,14 +247,14 @@ public class WikiParser {
 		fileSavePeople.addLineToFile(foundName, true);								// only names with at least one date will be saved
 
 		if (parsedData.birthDate != null) {
-			fileSavePeople.addLineToFile("," + parsedData.birthDate, false);
+			fileSavePeople.addLineToFile(";" + parsedData.birthDate, false);
 
 		} else {
-			fileSavePeople.addLineToFile(",", false);
+			fileSavePeople.addLineToFile(";", false);
 		}
 
 		if (parsedData.deathDate != null) {
-			fileSavePeople.addLineToFile("," + parsedData.deathDate, false);
+			fileSavePeople.addLineToFile(";" + parsedData.deathDate, false);
 		}
 
 	}

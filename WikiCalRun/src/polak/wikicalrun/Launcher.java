@@ -27,6 +27,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextArea;
 
+import polak.lucene.CreateIndex;
+import polak.lucene.SearchIndex;
 import polak.parser.WikiParser;
 import polak.search.SearchParsed;
 import polak.settings.Settings;
@@ -209,15 +211,15 @@ public class Launcher {
 		
 		/* Output from System.out.println is displayed in GUI of application */
 		//TODO
-        TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
-        PrintStream ps;
-		try {
-			ps = new PrintStream( taos , true, "UTF-8");
-	        System.setOut( ps );
-	        System.setErr( ps );
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+//        TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
+//        PrintStream ps;
+//		try {
+//			ps = new PrintStream( taos , true, "UTF-8");
+//	        System.setOut( ps );
+//	        System.setErr( ps );
+//		} catch (UnsupportedEncodingException e1) {
+//			e1.printStackTrace();
+//		}
 		
 		JScrollPane scrollPane = new JScrollPane(txtConsole);
 		scrollPane.setPreferredSize(new Dimension(400,380));  
@@ -276,8 +278,17 @@ public class Launcher {
 		panel_1.add(btnSelectParsedFile);
 		
 		JButton btnRunUnityTest = new JButton("Run unity test");
-		btnRunUnityTest.setBounds(12, 68, 123, 46);
+		btnRunUnityTest.setBounds(12, 68, 111, 46);
 		panel_1.add(btnRunUnityTest);
+		
+		JButton btnCreateIndex = new JButton("Create index");
+		btnCreateIndex.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnCreateIndex();
+			}
+		});
+		btnCreateIndex.setBounds(135, 68, 104, 46);
+		panel_1.add(btnCreateIndex);
 		btnRunUnityTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnTest();
@@ -327,19 +338,39 @@ public class Launcher {
 		new PeopleOutputTest(selectedFolder.getAbsolutePath());
 	}
 	
+	private void btnCreateIndex() {
+		try {
+			new CreateIndex(selectedFolder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void searchParsed() {
-		//txtConsole.setText("");
+
 		SearchParsed searchParsed = new SearchParsed(txtDate.getText(), txtName.getText(), txtEvent.getText(), selectedFolder);
-		List<String> foundStrings = searchParsed.searchParsed();
+		try {
+			searchParsed.searchParsedIndexed("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+//		List<String> foundStrings = searchParsed.searchParsed();
+//		
+//		listModel.clear();
+//		
+//		if(foundStrings != null) {
+//		
+//			for(String str : foundStrings) {
+//				listModel.addElement(str);
+//			}
+//		}
 		
-		listModel.clear();
 		
-		if(foundStrings != null) {
-		
-			for(String str : foundStrings) {
-				listModel.addElement(str);
-			}
-		}		
+//		try {
+//			SearchIndex.SearchHits("Art computer");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	private void clearAllFields() {
