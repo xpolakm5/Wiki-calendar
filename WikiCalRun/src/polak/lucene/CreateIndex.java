@@ -21,30 +21,33 @@ import polak.settings.Settings;
 
 public class CreateIndex {
 
-	
-	public CreateIndex(File selectedFolder) throws Exception {
+	public CreateIndex(File selectedFolder) {
 
 		File selectedFilePeople =  new File(selectedFolder + Settings.nameOfPeopleFile);
 		File selectedFileEvents =  new File(selectedFolder + Settings.nameOfEventsFile);
 		
+		try {
+			peopleAndEventsCreate(selectedFolder, selectedFilePeople, Settings.nameOfLuceneIndexPeople);
+			peopleAndEventsCreate(selectedFolder, selectedFileEvents, Settings.nameOfLuceneIndexEvents);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void peopleAndEventsCreate(File selectedFolder, File selectedFile, String nameOfLuceneIndex) throws Exception {
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 
 	    /* Where to store index */
-		
-		File directoryOfIndex = new File(Settings.defaultSelectedFolder + Settings.nameOfLuceneIndex);
-		
-		deleteDirectory(directoryOfIndex);
-		
+		File directoryOfIndex = new File(selectedFolder + nameOfLuceneIndex);
+		deleteDirectory(directoryOfIndex);														// before creating new index, the old one is deleted
 	    Directory index = FSDirectory.open(directoryOfIndex);
 
 	    IndexWriterConfig config = new IndexWriterConfig(Version.LATEST, analyzer);
-
 	    IndexWriter w = new IndexWriter(index, config);
 	    
 		BufferedReader in;
 		try {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(selectedFilePeople), "UTF-8"));
-			//TODO prerobit aj na 2. file
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(selectedFile), "UTF-8"));
 
 			while (in.ready()) {
 				String oneLine = in.readLine();
@@ -53,11 +56,9 @@ public class CreateIndex {
 				
 				if(splittedString.length == 2) {
 					addDoc(w, splittedString[0], splittedString[1], "");
-					//System.out.println("vypisanie: "  + oneLine);
 				}
 				else if(splittedString.length == 3) {
 					addDoc(w, splittedString[0], splittedString[1], splittedString[2]);
-					//System.out.println("vypisanie: "  + oneLine);
 				}
 			}
 
@@ -72,8 +73,8 @@ public class CreateIndex {
 	private static void addDoc(IndexWriter w, String name, String birthDate, String deathDate) {
 		Document doc = new Document();
 		doc.add(new TextField("name", name, Field.Store.YES));
-		doc.add(new StringField("birthDate", birthDate, Field.Store.YES)); 				// use a string field for isbn because we don't want it tokenized
-		doc.add(new StringField("deathDate", deathDate, Field.Store.YES));
+		doc.add(new StringField("birthStartDate", birthDate, Field.Store.YES)); 				// use a string field for isbn because we don't want it tokenized
+		doc.add(new StringField("deathEndDate", deathDate, Field.Store.YES));
 		
 		try {
 			w.addDocument(doc);
@@ -82,7 +83,7 @@ public class CreateIndex {
 		}
 	}
 	
-	public static boolean deleteDirectory(File directory) {
+	private static boolean deleteDirectory(File directory) {
 	    if(directory.exists()){
 	        File[] files = directory.listFiles();
 	        if(null!=files){

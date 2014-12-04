@@ -8,8 +8,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -27,13 +25,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextArea;
 
+import polak.dataclasses.SearchData;
 import polak.lucene.CreateIndex;
-import polak.lucene.SearchIndex;
 import polak.parser.WikiParser;
 import polak.search.SearchParsed;
 import polak.settings.Settings;
 import polak.tester.PeopleOutputTest;
-import polak.textoutputlib.TextAreaOutputStream;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JList;
@@ -50,7 +47,9 @@ public class Launcher {
 	private JTextField txtName;
 	private JTextField txtEvent;
 	private JTextArea txtConsole;
+	@SuppressWarnings("rawtypes")
 	private JList listOutput;
+	@SuppressWarnings("rawtypes")
 	private DefaultListModel listModel;
 	
 	/**
@@ -82,6 +81,7 @@ public class Launcher {
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initialize() {
 		frmWikicalByXpolakm = new JFrame();
 		frmWikicalByXpolakm.setBackground(Color.WHITE);
@@ -195,7 +195,7 @@ public class Launcher {
 		MouseListener mouseListener = new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if(evt.getClickCount() == 2) {
-					mouseClickedOutputList((String) listOutput.getSelectedValue());
+					mouseClickedOutputList(listOutput.getSelectedIndex());
 				}
 			}
 		};
@@ -206,8 +206,6 @@ public class Launcher {
 		panel_4.add(scrollPane_1);
 		
 		txtConsole = new JTextArea();
-		
-
 		
 		/* Output from System.out.println is displayed in GUI of application */
 		//TODO
@@ -224,7 +222,6 @@ public class Launcher {
 		JScrollPane scrollPane = new JScrollPane(txtConsole);
 		scrollPane.setPreferredSize(new Dimension(400,380));  
 		panel_3.add(scrollPane);
-		//panel_3.add(txtrGafda);
 		
 		JButton btnGenerate = new JButton("Generate");
 		btnGenerate.setBounds(324, 68, 85, 46);
@@ -255,17 +252,11 @@ public class Launcher {
 			public void actionPerformed(ActionEvent e) {
 				
 				final JFileChooser fc = new JFileChooser();
-
-				//FileNameExtensionFilter filter = new FileNameExtensionFilter("xml", "XML");
-				//fc.setFileFilter(filter);
-				
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				
 				int returnVal = fc.showOpenDialog(null);
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
 		            File file = fc.getSelectedFile();
-		            //This is where a real application would open the file.
-		            System.out.println("Opening: " + file.getName() + ".");
 		            lblSelectedFolder.setText(file.getAbsolutePath());
 		            selectedFolder = file;
 		        } else {
@@ -307,10 +298,13 @@ public class Launcher {
 		        }
 		    }
 		} catch (Exception e) {
-		    // If Nimbus is not available, you can set the GUI to another look and feel.
+		    e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Button Select source - xml file will be selected
+	 */
 	private void selectFile() {
 		
 		final JFileChooser fc = new JFileChooser();
@@ -321,8 +315,6 @@ public class Launcher {
 		int returnVal = fc.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            //This is where a real application would open the file.
-            System.out.println("Opening: " + file.getName() + ".");
             lblSelectedSource.setText(file.getAbsolutePath());
             selectedFile = file;
         } else {
@@ -330,14 +322,23 @@ public class Launcher {
         }
 	}
 	
+	/**
+	 * Button which generate 2 file output from big SK wiki page
+	 */
 	private void btnGenerate() {
 		new WikiParser(selectedFile);
 	}
 	
+	/**
+	 * Button Run unity test - check if the output file people is generated properly
+	 */
 	private void btnTest() {
 		new PeopleOutputTest(selectedFolder.getAbsolutePath());
 	}
 	
+	/**
+	 * Button Create index - already parsed files will be indexed
+	 */
 	private void btnCreateIndex() {
 		try {
 			new CreateIndex(selectedFolder);
@@ -346,31 +347,27 @@ public class Launcher {
 		}
 	}
 	
+	
+	/**
+	 * Button Search - searching from indexed files
+	 */
+	@SuppressWarnings("unchecked")
 	private void searchParsed() {
 
 		SearchParsed searchParsed = new SearchParsed(txtDate.getText(), txtName.getText(), txtEvent.getText(), selectedFolder);
 		try {
-			searchParsed.searchParsedIndexed("");
+
+			List<SearchData> foundStrings = searchParsed.searchParsedIndexed("");
+			listModel.clear();
+
+			if(foundStrings != null) {
+				for(SearchData str : foundStrings) {
+					listModel.addElement(str.getName());
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		List<String> foundStrings = searchParsed.searchParsed();
-//		
-//		listModel.clear();
-//		
-//		if(foundStrings != null) {
-//		
-//			for(String str : foundStrings) {
-//				listModel.addElement(str);
-//			}
-//		}
-		
-		
-//		try {
-//			SearchIndex.SearchHits("Art computer");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 	
 	private void clearAllFields() {
@@ -381,7 +378,10 @@ public class Launcher {
 		listModel.clear();
 	}
 	
-	private void mouseClickedOutputList(String dataString) {
-		System.out.println("selected " + dataString);
+	/**
+	 * Action after selecting one row from list of names (calendar)
+	 */
+	private void mouseClickedOutputList(int selectedIndex) {
+		System.out.println("selected index " + selectedIndex);
 	}
 }

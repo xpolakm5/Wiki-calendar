@@ -6,5 +6,6 @@ public class Settings {
 	public static String nameOfEventsFile = "\\WikiCalEvents.txt";
 	public static String defaultSelectedFile = "C:\\Users\\LenovoTunerX\\Desktop\\skwiki-latest-pages-articles.xml";
 	public static String defaultSelectedFolder = "C:\\Users\\LenovoTunerX\\Desktop";
-	public static String nameOfLuceneIndex = "\\LuceneIndex";
+	public static String nameOfLuceneIndexPeople = "\\LuceneIndexPeople";
+	public static String nameOfLuceneIndexEvents = "\\LuceneIndexEvents";
 }
