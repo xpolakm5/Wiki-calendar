@@ -15,5 +15,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lucene-analyzers-common-4.10.2.jar"/>
 	<classpathentry kind="lib" path="lucene-queryparser-4.10.2.jar"/>
+	<classpathentry kind="lib" path="jcalendar-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -34,6 +34,11 @@ import polak.tester.PeopleOutputTest;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JList;
+import java.awt.Toolkit;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Calendar;
+import com.toedter.calendar.JCalendar;
 
 
 public class Launcher {
@@ -51,7 +56,7 @@ public class Launcher {
 	private JList listOutput;
 	@SuppressWarnings("rawtypes")
 	private DefaultListModel listModel;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -84,10 +89,11 @@ public class Launcher {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initialize() {
 		frmWikicalByXpolakm = new JFrame();
+		frmWikicalByXpolakm.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\work\\GIT\\Wiki-calendar\\WikiCalRun\\images\\Wikipedia-icon.png"));
 		frmWikicalByXpolakm.setBackground(Color.WHITE);
 		frmWikicalByXpolakm.setForeground(Color.WHITE);
 		frmWikicalByXpolakm.setTitle("WikiCal by xpolakm5");
-		frmWikicalByXpolakm.setBounds(100, 100, 880, 624);
+		frmWikicalByXpolakm.setBounds(100, 100, 880, 850);
 		frmWikicalByXpolakm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -139,11 +145,11 @@ public class Launcher {
 		panel_2.setLayout(null);
 		
 		JLabel lblDate = new JLabel("Date (DD.MM.YYYY):");
-		lblDate.setBounds(12, 25, 126, 16);
+		lblDate.setBounds(12, 253, 126, 16);
 		panel_2.add(lblDate);
 		
 		txtDate = new JTextField();
-		txtDate.setBounds(293, 25, 116, 22);
+		txtDate.setBounds(293, 253, 116, 22);
 		panel_2.add(txtDate);
 		txtDate.setColumns(10);
 		
@@ -154,7 +160,7 @@ public class Launcher {
 			}
 		});
 		btnNewButton.setToolTipText("Write just in one box! Other must be empty.");
-		btnNewButton.setBounds(293, 112, 116, 46);
+		btnNewButton.setBounds(293, 340, 116, 46);
 		panel_2.add(btnNewButton);
 		
 		JButton btnClearAllFields = new JButton("Clear all fields");
@@ -163,29 +169,29 @@ public class Launcher {
 				clearAllFields();
 			}
 		});
-		btnClearAllFields.setBounds(165, 112, 116, 46);
+		btnClearAllFields.setBounds(165, 340, 116, 46);
 		panel_2.add(btnClearAllFields);
 		
 		JLabel lblName = new JLabel("Name:");
-		lblName.setBounds(12, 54, 56, 16);
+		lblName.setBounds(12, 282, 56, 16);
 		panel_2.add(lblName);
 		
 		txtName = new JTextField();
-		txtName.setBounds(293, 54, 116, 22);
+		txtName.setBounds(293, 282, 116, 22);
 		panel_2.add(txtName);
 		txtName.setColumns(10);
 		
 		JLabel lblEvent = new JLabel("Historic moment / thing / institution:");
-		lblEvent.setBounds(12, 83, 221, 16);
+		lblEvent.setBounds(12, 311, 221, 16);
 		panel_2.add(lblEvent);
 		
 		txtEvent = new JTextField();
-		txtEvent.setBounds(293, 83, 116, 22);
+		txtEvent.setBounds(293, 311, 116, 22);
 		panel_2.add(txtEvent);
 		txtEvent.setColumns(10);
 		
 		JPanel panel_4 = new JPanel();
-		panel_4.setBounds(12, 173, 397, 231);
+		panel_4.setBounds(12, 399, 397, 231);
 		panel_2.add(panel_4);
 		
 		listModel = new DefaultListModel();
@@ -204,6 +210,24 @@ public class Launcher {
 		JScrollPane scrollPane_1 = new JScrollPane(listOutput);
 		scrollPane_1.setPreferredSize(new Dimension(400,250));  
 		panel_4.add(scrollPane_1);
+		
+		JPanel panel_5 = new JPanel();
+		panel_5.setBounds(12, 27, 397, 213);
+		panel_2.add(panel_5);
+		
+		JCalendar calendar = new JCalendar();
+		panel_5.add(calendar);
+		
+		
+		calendar.addPropertyChangeListener("calendar", new PropertyChangeListener() {
+
+			   // @Override
+			    public void propertyChange(PropertyChangeEvent e) {
+			        final Calendar c = (Calendar) e.getNewValue();   
+			        System.out.println(c.get(Calendar.DAY_OF_MONTH));   
+			    }
+			});
+		
 		
 		txtConsole = new JTextArea();
 		
