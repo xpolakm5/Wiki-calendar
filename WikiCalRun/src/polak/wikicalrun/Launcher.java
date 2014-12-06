@@ -32,6 +32,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JTextArea;
 
 import polak.dataclasses.SearchData;
+import polak.datacompare.DataCompare;
 import polak.lucene.CreateIndex;
 import polak.parser.WikiParser;
 import polak.search.SearchParsed;
@@ -420,6 +421,7 @@ public class Launcher {
 		txtName.setText("");
 		txtConsole.setText("");
 		listModel.clear();
+		selectedItem = null;
 	}
 	
 	
@@ -429,6 +431,7 @@ public class Launcher {
 	/**
 	 * Action after selecting one row from list of names (calendar)
 	 */
+	@SuppressWarnings("deprecation")
 	private void mouseClickedOutputList(int selectedIndex) {
 		
 		SearchData searchData = foundSearchData.get(selectedIndex);
@@ -440,16 +443,15 @@ public class Launcher {
 		else {
 			System.out.println("Could " + selectedItem.getName() + " have something to do with " + searchData.getName() + "?");
 			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			try {
-				Date date = dateFormat.parse("2013-12-4");
-				//date1.compareTo(date2);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			boolean couldTheyMeet = DataCompare.CouldTheyMeet(selectedItem, searchData);
+			
+			if(couldTheyMeet) {
+				System.out.println("yes.");
+			} else {
+				System.out.println("no.");
 			}
 			
-			System.out.println("");
+			
 		}
 	}
 }
