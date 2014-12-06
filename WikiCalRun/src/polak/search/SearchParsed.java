@@ -37,15 +37,23 @@ public class SearchParsed {
 		selectedFileEvents = new File(selectedFolder + Settings.nameOfEventsFile);
 	}
 
-	public List<SearchData> searchParsedIndexed(String queryString) throws Exception {
+	public List<SearchData> searchParsedIndexed() throws Exception {
 
 		if (selectedFilePeople.exists() && selectedFileEvents.exists()) {
 			if (!txtDate.equals("")) {
-				queryString = txtDate;						// searching by both dates (start and end) inside both files//TODO dorobit pre dates
+				String parsedDate = modifyDateToLucene(txtDate);
+				List<SearchData> foundData = new ArrayList<SearchData>();
+				foundData.addAll(getQueryData(parsedDate, Settings.nameOfLuceneIndexPeople, "birthStartDate"));	//people, birth
+				foundData.addAll(getQueryData(parsedDate, Settings.nameOfLuceneIndexPeople, "deathEndDate"));	//people, birth
+				foundData.addAll(getQueryData(parsedDate, Settings.nameOfLuceneIndexEvents, "birthStartDate"));	//people, birth
+				foundData.addAll(getQueryData(parsedDate, Settings.nameOfLuceneIndexEvents, "deathEndDate"));	//people, birth
+				
+				return foundData;															// searching by both dates (start and end) inside both files
+				
 			} else if (!txtName.equals("")) {
 				return getQueryData(txtName, Settings.nameOfLuceneIndexPeople, "name");		// search by name in people folder
 			} else if (!txtEvent.equals("")) {
-				return getQueryData(txtEvent, Settings.nameOfLuceneIndexEvents, "name");		// serch by name in events folder
+				return getQueryData(txtEvent, Settings.nameOfLuceneIndexEvents, "name");	// serch by name in events folder
 			}
 		} else {
 			System.out.println("Path " + selectedFolder.getAbsolutePath() + " doesn't contain required files.");
@@ -68,10 +76,18 @@ public class SearchParsed {
 				Directory index = FSDirectory.open(luceneIndexDirectory);
 
 				// the "name" arg specifies the default field to use when no field is explicitly specified in the query.
-				Query q = new QueryParser(queryParameter, analyzer).parse(queryString);//TODO zmena
+				
+				Query q;
+				
+				try {
+					q = new QueryParser(queryParameter, analyzer).parse(queryString);
+				} catch(Exception e) {
+					System.out.println("Problem with date parsing. Please check date field.");
+					return new ArrayList<SearchData>();
+				}
 
 				// 3. search
-				int hitsPerPage = 50;
+				int hitsPerPage = 100;
 				IndexReader reader = DirectoryReader.open(index);
 				IndexSearcher searcher = new IndexSearcher(reader);
 				TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
@@ -81,11 +97,11 @@ public class SearchParsed {
 				List<SearchData> foundData = new ArrayList<SearchData>();
 
 				// 4. display results
-				System.out.println("Found " + hits.length + " hits.");
+				//System.out.println("Found " + hits.length + " hits.");
 				for (int i = 0; i < hits.length; ++i) {
 					int docId = hits[i].doc;
 					Document d = searcher.doc(docId);
-					System.out.println((i + 1) + ". " + d.get("name") + "\t" + d.get("birthStartDate") + "\t" + d.get("deathEndDate"));
+					//System.out.println((i + 1) + ". " + d.get("name") + "\t" + d.get("birthStartDate") + "\t" + d.get("deathEndDate"));
 					foundData.add(new SearchData(d.get("name"), d.get("birthStartDate"), d.get("deathEndDate")));
 				}
 				reader.close();
@@ -93,52 +109,19 @@ public class SearchParsed {
 		return foundData;
 	}
 
-	// /**
-	// * Sarch is finding just output for the first inserted element. (Date, Name, Event in this order).
-	// */
-	// public List<String> searchParsed() {
-	//
-	//
-	// if(selectedFilePeople.exists() && selectedFileEvents.exists()) {
-	// if(!txtDate.equals("")) {
-	// List<String> listOfPeople = findSubString(txtDate, selectedFilePeople);
-	// List<String> listOfEvents = findSubString(txtDate, selectedFileEvents);
-	// listOfPeople.addAll(listOfEvents);
-	//
-	// return listOfPeople;
-	// }
-	// else if(!txtName.equals("")) {
-	// return findSubString(txtName, selectedFilePeople);
-	// }
-	// else if(!txtEvent.equals("")) {
-	// return findSubString(txtEvent, selectedFileEvents);
-	// }
-	// }
-	// else {
-	// System.out.println("Path " + selectedFolder.getAbsolutePath() + " doesn't contain required files.");
-	// }
-	// return null;
-	// }
-	//
-	// private List<String> findSubString(String substring, File sourceFile) {
-	//
-	// List<String> foundStrings = new ArrayList<String>();
-	// BufferedReader in;
-	// try {
-	// in = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), "UTF-8"));
-	//
-	// while (in.ready()) {
-	// String s = in.readLine();
-	// if (s.contains(substring)) {
-	// foundStrings.add(s);
-	// }
-	// }
-	//
-	// in.close();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return foundStrings;
-	// }
+	
+	private String modifyDateToLucene(String inputDate) {
+		
+		if(inputDate.matches("[0-9]+\\.[0-9]+\\.[0-9]+")) {			//day, month, year - all good
+			return inputDate;
+		} else if(inputDate.matches("[0-9]+\\.[0-9]+\\.")) {		//day, month - year must be ignored
+			return inputDate + "*";
+		} else if(inputDate.matches("[0-9]+")) {
+			return "..*" + inputDate;
+		}
+		else {
+			System.out.println("Problem with input of date.");
+			return "";
+		}
+	}
 }

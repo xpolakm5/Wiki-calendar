@@ -8,6 +8,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -31,6 +37,8 @@ import polak.parser.WikiParser;
 import polak.search.SearchParsed;
 import polak.settings.Settings;
 import polak.tester.PeopleOutputTest;
+import polak.textoutputlib.TextAreaOutputStream;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JList;
@@ -39,6 +47,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 import com.toedter.calendar.JCalendar;
+import javax.swing.JCheckBox;
 
 
 public class Launcher {
@@ -52,10 +61,12 @@ public class Launcher {
 	private JTextField txtName;
 	private JTextField txtEvent;
 	private JTextArea txtConsole;
+	private JCheckBox chckbxIgnoreYear;
 	@SuppressWarnings("rawtypes")
 	private JList listOutput;
 	@SuppressWarnings("rawtypes")
 	private DefaultListModel listModel;
+	List<SearchData> foundSearchData;
 
 	/**
 	 * Launch the application.
@@ -93,7 +104,7 @@ public class Launcher {
 		frmWikicalByXpolakm.setBackground(Color.WHITE);
 		frmWikicalByXpolakm.setForeground(Color.WHITE);
 		frmWikicalByXpolakm.setTitle("WikiCal by xpolakm5");
-		frmWikicalByXpolakm.setBounds(100, 100, 880, 850);
+		frmWikicalByXpolakm.setBounds(100, 100, 880, 670);
 		frmWikicalByXpolakm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -120,13 +131,13 @@ public class Launcher {
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-						.addComponent(panel_2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(panel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
+						.addComponent(panel, GroupLayout.PREFERRED_SIZE, 421, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
-						.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE))
+						.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
@@ -138,18 +149,18 @@ public class Launcher {
 						.addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-						.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE))
+						.addComponent(panel_2, GroupLayout.DEFAULT_SIZE, 463, Short.MAX_VALUE)
+						.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, 463, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		panel_2.setLayout(null);
 		
-		JLabel lblDate = new JLabel("Date (DD.MM.YYYY):");
-		lblDate.setBounds(12, 253, 126, 16);
+		JLabel lblDate = new JLabel("Date (d.m.y OR d.m. OR y):");
+		lblDate.setBounds(12, 317, 160, 16);
 		panel_2.add(lblDate);
 		
 		txtDate = new JTextField();
-		txtDate.setBounds(293, 253, 116, 22);
+		txtDate.setBounds(293, 317, 116, 22);
 		panel_2.add(txtDate);
 		txtDate.setColumns(10);
 		
@@ -160,7 +171,7 @@ public class Launcher {
 			}
 		});
 		btnNewButton.setToolTipText("Write just in one box! Other must be empty.");
-		btnNewButton.setBounds(293, 340, 116, 46);
+		btnNewButton.setBounds(293, 404, 116, 46);
 		panel_2.add(btnNewButton);
 		
 		JButton btnClearAllFields = new JButton("Clear all fields");
@@ -169,33 +180,28 @@ public class Launcher {
 				clearAllFields();
 			}
 		});
-		btnClearAllFields.setBounds(165, 340, 116, 46);
+		btnClearAllFields.setBounds(165, 404, 116, 46);
 		panel_2.add(btnClearAllFields);
 		
 		JLabel lblName = new JLabel("Name:");
-		lblName.setBounds(12, 282, 56, 16);
+		lblName.setBounds(12, 346, 56, 16);
 		panel_2.add(lblName);
 		
 		txtName = new JTextField();
-		txtName.setBounds(293, 282, 116, 22);
+		txtName.setBounds(293, 346, 116, 22);
 		panel_2.add(txtName);
 		txtName.setColumns(10);
 		
 		JLabel lblEvent = new JLabel("Historic moment / thing / institution:");
-		lblEvent.setBounds(12, 311, 221, 16);
+		lblEvent.setBounds(12, 375, 221, 16);
 		panel_2.add(lblEvent);
 		
 		txtEvent = new JTextField();
-		txtEvent.setBounds(293, 311, 116, 22);
+		txtEvent.setBounds(293, 375, 116, 22);
 		panel_2.add(txtEvent);
 		txtEvent.setColumns(10);
 		
-		JPanel panel_4 = new JPanel();
-		panel_4.setBounds(12, 399, 397, 231);
-		panel_2.add(panel_4);
-		
 		listModel = new DefaultListModel();
-		listOutput = new JList(listModel);
 		
 		
 		MouseListener mouseListener = new MouseAdapter() {
@@ -205,46 +211,60 @@ public class Launcher {
 				}
 			}
 		};
-		listOutput.addMouseListener(mouseListener);
-		
-		JScrollPane scrollPane_1 = new JScrollPane(listOutput);
-		scrollPane_1.setPreferredSize(new Dimension(400,250));  
-		panel_4.add(scrollPane_1);
 		
 		JPanel panel_5 = new JPanel();
-		panel_5.setBounds(12, 27, 397, 213);
+		panel_5.setBounds(12, 27, 397, 234);
 		panel_2.add(panel_5);
 		
-		JCalendar calendar = new JCalendar();
+		final JCalendar calendar = new JCalendar();
 		panel_5.add(calendar);
+		
+		chckbxIgnoreYear = new JCheckBox("Ignore year while selecting from calendar");
+		chckbxIgnoreYear.setSelected(true);
+		chckbxIgnoreYear.setBounds(8, 283, 273, 25);
+		panel_2.add(chckbxIgnoreYear);
 		
 		
 		calendar.addPropertyChangeListener("calendar", new PropertyChangeListener() {
 
 			   // @Override
 			    public void propertyChange(PropertyChangeEvent e) {
-			        final Calendar c = (Calendar) e.getNewValue();   
-			        System.out.println(c.get(Calendar.DAY_OF_MONTH));   
+			    	
+			    	if(chckbxIgnoreYear.isSelected()) {
+			    		String newstring = new SimpleDateFormat("d.M.").format(calendar.getDate());
+				        txtDate.setText(newstring);
+			    	} else {
+			    		String newstring = new SimpleDateFormat("d.M.y").format(calendar.getDate());
+				        txtDate.setText(newstring);
+			    	}
+			    	
+			    	searchParsed();
 			    }
 			});
+		listOutput = new JList(listModel);
+		listOutput.addMouseListener(mouseListener);
+		
+		JScrollPane scrollPane_1 = new JScrollPane(listOutput);
+		panel_3.add(scrollPane_1);
+		scrollPane_1.setPreferredSize(new Dimension(400,210));
 		
 		
 		txtConsole = new JTextArea();
 		
 		/* Output from System.out.println is displayed in GUI of application */
 		//TODO
-//        TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
-//        PrintStream ps;
-//		try {
-//			ps = new PrintStream( taos , true, "UTF-8");
-//	        System.setOut( ps );
-//	        System.setErr( ps );
-//		} catch (UnsupportedEncodingException e1) {
-//			e1.printStackTrace();
-//		}
+        TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
+        PrintStream ps;
+		try {
+			ps = new PrintStream( taos , true, "UTF-8");
+	        System.setOut( ps );
+	        System.setErr( ps );
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
 		
 		JScrollPane scrollPane = new JScrollPane(txtConsole);
-		scrollPane.setPreferredSize(new Dimension(400,380));  
+		scrollPane.setPreferredSize(new Dimension(400,210));  
 		panel_3.add(scrollPane);
 		
 		JButton btnGenerate = new JButton("Generate");
@@ -381,12 +401,12 @@ public class Launcher {
 		SearchParsed searchParsed = new SearchParsed(txtDate.getText(), txtName.getText(), txtEvent.getText(), selectedFolder);
 		try {
 
-			List<SearchData> foundStrings = searchParsed.searchParsedIndexed("");
+			foundSearchData = searchParsed.searchParsedIndexed();
 			listModel.clear();
 
-			if(foundStrings != null) {
-				for(SearchData str : foundStrings) {
-					listModel.addElement(str.getName());
+			if(foundSearchData != null) {
+				for(SearchData str : foundSearchData) {
+					listModel.addElement(str.getName() + " (" + str.getBirthDate() + " - " + str.getDeathDate() + ")");
 				}
 			}
 		} catch (Exception e) {
@@ -402,10 +422,34 @@ public class Launcher {
 		listModel.clear();
 	}
 	
+	
+	private SearchData selectedItem = null;
+	
+	
 	/**
 	 * Action after selecting one row from list of names (calendar)
 	 */
 	private void mouseClickedOutputList(int selectedIndex) {
-		System.out.println("selected index " + selectedIndex);
+		
+		SearchData searchData = foundSearchData.get(selectedIndex);
+		
+		if(selectedItem == null) {
+			selectedItem = searchData;
+			System.out.println("Selected:\n" + searchData.getName() + ". Select another to compare time periods.\n");
+		}
+		else {
+			System.out.println("Could " + selectedItem.getName() + " have something to do with " + searchData.getName() + "?");
+			
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			try {
+				Date date = dateFormat.parse("2013-12-4");
+				//date1.compareTo(date2);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println("");
+		}
 	}
 }
