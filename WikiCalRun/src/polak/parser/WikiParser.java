@@ -204,9 +204,13 @@ public class WikiParser {
 
 		if (foundName != null) {															// if name is found
 
+			if(foundName.contains("Balážová")) {
+				System.out.println(rawDeathDate);
+			}
+			
 			DeathBirthParsedData parsedData = null;
 
-			if (rawDeathDate != null) {
+			if (rawDeathDate != null && !rawDeathDate.contains("<!--")) {					//if it is no commented code
 				parsedData = DateParser.parseDeathDate(rawDeathDate);							// it could
 			}
 
@@ -230,7 +234,6 @@ public class WikiParser {
 		}
 		
 		if (foundTitle != null && (rawStartDate != null)) {								//it's possible that foundTitle have also foundName (cannot be else if)
-			// TODO urobit ukladanie do suboru!!!
 			String parsedStartDate = DateParser.parseSimpleTime(rawStartDate);
 			if(parsedStartDate != null) {
 				//System.out.println("parsed: " + foundTitle + " datum: " + parsedStartDate);

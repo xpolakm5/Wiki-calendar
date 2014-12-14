@@ -1,4 +1,4 @@
-package polak.tester;
+package polak.test;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -87,7 +87,7 @@ public class SearchParsed {
 				}
 
 				// 3. search
-				int hitsPerPage = 100;
+				int hitsPerPage = 200;
 				IndexReader reader = DirectoryReader.open(index);
 				IndexSearcher searcher = new IndexSearcher(reader);
 				TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);

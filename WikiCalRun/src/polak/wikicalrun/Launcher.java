@@ -37,7 +37,7 @@ import polak.lucene.CreateIndex;
 import polak.parser.WikiParser;
 import polak.search.SearchParsed;
 import polak.settings.Settings;
-import polak.tester.PeopleOutputTest;
+import polak.test.PeopleOutputTest;
 import polak.textoutputlib.TextAreaOutputStream;
 
 import javax.swing.JScrollPane;

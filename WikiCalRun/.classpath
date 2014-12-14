@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="woodstox-core-asl-4.2.0.jar"/>
-	<classpathentry kind="lib" path="woodstox-core-lgpl-4.2.0.jar"/>
-	<classpathentry kind="lib" path="msv-core-2010.2.jar"/>
-	<classpathentry kind="lib" path="stax2-api-3.1.1.jar"/>
-	<classpathentry kind="lib" path="woodstox-msv-rng-datatype-20020414.jar"/>
-	<classpathentry kind="lib" path="xsdlib-2010.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lucene-core-4.10.2.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/Users/LenovoTunerX/Downloads/lucene-4.10.2/docs/core/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lucene-analyzers-common-4.10.2.jar"/>
-	<classpathentry kind="lib" path="lucene-queryparser-4.10.2.jar"/>
-	<classpathentry kind="lib" path="jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-analyzers-common-4.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-4.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queryparser-4.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/msv-core-2010.2.jar"/>
+	<classpathentry kind="lib" path="lib/stax2-api-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-asl-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-lgpl-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-msv-rng-datatype-20020414.jar"/>
+	<classpathentry kind="lib" path="lib/xsdlib-2010.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
