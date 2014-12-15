@@ -13,6 +13,9 @@ public class FileSave {
 	BufferedWriter bufferedWriter;
 	boolean firstRun = true;
 
+	/**
+	 * Create file to selected pathToFile
+	 */
 	public FileSave(String pathToFile) {
 		File fout = new File(pathToFile);
 		FileOutputStream fos;

@@ -432,6 +432,9 @@ public class Launcher {
 		}
 	}
 	
+	/**
+	 * This will erase all the fields and also selectedItem (for comparing dates) will be null
+	 */
 	private void clearAllFields() {
 		txtDate.setText("");
 		txtEvent.setText("");

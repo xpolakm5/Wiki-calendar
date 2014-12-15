@@ -24,6 +24,10 @@ public class WikiParser {
 	FileSave fileSaveEvents;											// output file with events, things, universities, ...
 	String lastTitle = "";
 
+	/**
+	 * Will parse file from big source Wikipedia XML (sourceFilePath) and will create two files of People and Events
+	 * @param sourceFilePath
+	 */
 	public WikiParser(File sourceFilePath) {
 		this.sourceFilePath = sourceFilePath;
 
@@ -37,6 +41,11 @@ public class WikiParser {
 		}
 	}
 
+	/**
+	 * Executing of creating files
+	 * @param xmlFileName
+	 * @throws Exception
+	 */
 	private void execute(String xmlFileName) throws Exception {
 
 		long startTime = System.currentTimeMillis();
@@ -178,24 +187,7 @@ public class WikiParser {
 								//System.out.println("date: " + foundSubstring);
 							}
 						}
-					}
-					
-//					else if (line.matches("^ *\\| *Rok zatvorenia *=.*") ) {//|| line.matches("^ *\\| *[Pp]rv[aá] zmienka *=.*")) {	// | Prvá zmienka
-//
-//						System.out.println("zatvorenie: " + line);
-//						
-//						Pattern pattern = Pattern.compile("= *(.*?)$");
-//						Matcher matcher = pattern.matcher(line);
-//						if (matcher.find()) {
-//							String foundSubstring = matcher.group(1);
-//
-//							if (!foundSubstring.equals("") && !foundSubstring.equals(" ")) {
-//								rawStartDate = foundSubstring;
-//								//System.out.println("date: " + foundSubstring);
-//							}
-//						}
-//					}
-					
+					}					
 				}
 			}
 		}

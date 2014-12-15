@@ -37,6 +37,9 @@ public class SearchParsed {
 		selectedFileEvents = new File(selectedFolder + Settings.nameOfEventsFile);
 	}
 
+	/**
+	 * Executing of searching itself. When data is found they will be returned in List of SearchData
+	 */
 	public List<SearchData> searchParsedIndexed() throws Exception {
 
 		if (selectedFilePeople.exists() && selectedFileEvents.exists()) {
@@ -63,6 +66,9 @@ public class SearchParsed {
 		
 	}
 
+	/**
+	 * Will find query data from selected Index
+	 */
 	private List<SearchData> getQueryData(String queryString, String nameOfLuceneIndex, String queryParameter) throws Exception{
 
 		// 0. Specify the analyzer for tokenizing text. The same analyzer should be used for indexing and searching
@@ -109,7 +115,9 @@ public class SearchParsed {
 		return foundData;
 	}
 
-	
+	/**
+	 * There are 3 types of dates - every one of them is converted here to String which Lucene query can find
+	 */
 	private String modifyDateToLucene(String inputDate) {
 		
 		if(inputDate.matches("[0-9]+\\.[0-9]+\\.[0-9]+")) {			//day, month, year - all good

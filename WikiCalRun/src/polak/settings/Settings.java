@@ -1,5 +1,9 @@
 package polak.settings;
 
+/**
+ * Static settings which can be modified before run of program
+ * @author Martin Polak
+ */
 public class Settings {
 	
 	public static String nameOfPeopleFile = "\\WikiCalPeople.txt";

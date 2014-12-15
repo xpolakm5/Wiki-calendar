@@ -1,5 +1,10 @@
 package polak.dataclasses;
 
+/**
+ * Data class for saving searched data
+ * @author LenovoTunerX
+ *
+ */
 public class SearchData {
 
 	private String name;

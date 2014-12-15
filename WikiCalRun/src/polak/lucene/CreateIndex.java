@@ -21,6 +21,10 @@ import polak.settings.Settings;
 
 public class CreateIndex {
 
+	/**
+	 * Function will create index folders from parsed files
+	 * @param selectedFolder - folder must contain parsed files People and Events
+	 */
 	public CreateIndex(File selectedFolder) {
 
 		File selectedFilePeople =  new File(selectedFolder + Settings.nameOfPeopleFile);
@@ -34,6 +38,9 @@ public class CreateIndex {
 		}
 	}
 	
+	/**
+	 * Will create index to selected folder. Data will be from selectedFile and name of Index (new folder) will be nameOfLuceneIndex
+	 */
 	private static void peopleAndEventsCreate(File selectedFolder, File selectedFile, String nameOfLuceneIndex) throws Exception {
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 
@@ -70,6 +77,9 @@ public class CreateIndex {
 	    w.close();
 	}
 	
+	/**
+	 * Adds index data name, birthDate and deathDate to IndexWriter
+	 */
 	private static void addDoc(IndexWriter w, String name, String birthDate, String deathDate) {
 		Document doc = new Document();
 		doc.add(new TextField("name", name, Field.Store.YES));
@@ -83,6 +93,9 @@ public class CreateIndex {
 		}
 	}
 	
+	/**
+	 * Directory will be deleted (function is recursive)
+	 */
 	private static boolean deleteDirectory(File directory) {
 	    if(directory.exists()){
 	        File[] files = directory.listFiles();

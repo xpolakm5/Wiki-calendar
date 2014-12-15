@@ -7,6 +7,9 @@ import polak.dataclasses.DeathBirthParsedData;
 
 public class DateParser {
 
+	/**
+	 * from raw death date will create death and birth date (if it contains birth date) in DeathBirthParsedData class
+	 */
 	public static DeathBirthParsedData parseDeathDate(String sourceDate) {
 		
 		if ((sourceDate.matches(".*d[uú]v\\|[0-9].*"))) {
@@ -38,6 +41,11 @@ public class DateParser {
 		return null;
 	}
 
+	/**
+	 * Will work for simple time (not when there is date of birth and death in one string)
+	 * @param sourceDate
+	 * @return
+	 */
 	public static String parseSimpleTime(String sourceDate) {
 		
 		if (sourceDate.matches(".*dnv\\|[0-9].*")) {									// {{dnv|1941|2|19}}, returns just date of birth

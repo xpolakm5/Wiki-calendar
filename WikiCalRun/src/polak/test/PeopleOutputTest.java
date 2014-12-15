@@ -8,6 +8,10 @@ import polak.settings.Settings;
 
 public class PeopleOutputTest {
 
+	/**
+	 * Compare tested output with hard coded strings - if they match, test will write it's OK. Otherwise will write test has failed.
+	 * @param sourceFolder
+	 */
 	public PeopleOutputTest(String sourceFolder) {
 		File sourceFolderFile = new File(sourceFolder + Settings.nameOfPeopleFile);
 
