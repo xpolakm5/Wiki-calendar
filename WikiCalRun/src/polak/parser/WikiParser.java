@@ -203,10 +203,6 @@ public class WikiParser {
 		/* when the name is found - we can try parsing dates */
 
 		if (foundName != null) {															// if name is found
-
-			if(foundName.contains("Balážová")) {
-				System.out.println(rawDeathDate);
-			}
 			
 			DeathBirthParsedData parsedData = null;
 

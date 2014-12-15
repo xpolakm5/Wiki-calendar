@@ -55,6 +55,7 @@ public class Launcher {
 
 	private JFrame frmWikicalByXpolakm;
 	private JLabel lblSelectedSource;
+	private JLabel lblSelectedFolder;
 	
 	private File selectedFile = new File(Settings.defaultSelectedFile);
 	private File selectedFolder = new File(Settings.defaultSelectedFolder);
@@ -253,7 +254,7 @@ public class Launcher {
 		txtConsole = new JTextArea();
 		
 		/* Output from System.out.println is displayed in GUI of application */
-		//TODO
+		//TODO - comment this (until end of catch) when you want to print console output to console
         TextAreaOutputStream taos = new TextAreaOutputStream( txtConsole, 9999999 );
         PrintStream ps;
 		try {
@@ -287,7 +288,7 @@ public class Launcher {
 		});
 		panel_1.setLayout(null);
 		
-		final JLabel lblSelectedFolder = new JLabel(selectedFolder.getAbsolutePath());
+		lblSelectedFolder = new JLabel(selectedFolder.getAbsolutePath());
 		lblSelectedFolder.setEnabled(false);
 		lblSelectedFolder.setBounds(12, 26, 386, 16);
 		panel_1.add(lblSelectedFolder);
@@ -362,6 +363,11 @@ public class Launcher {
             File file = fc.getSelectedFile();
             lblSelectedSource.setText(file.getAbsolutePath());
             selectedFile = file;
+            
+            //also select folder (right side - so user don't have to manually change that value as this)
+            lblSelectedFolder.setText(file.getParent());
+            selectedFolder = file.getParentFile();
+            
         } else {
         	System.out.println("Open command cancelled by user.");
         }
@@ -371,7 +377,12 @@ public class Launcher {
 	 * Button which generate 2 file output from big SK wiki page
 	 */
 	private void btnGenerate() {
-		new WikiParser(selectedFile);
+		if(selectedFile.exists()) {
+			new WikiParser(selectedFile);
+		}
+		else {
+			System.out.println(selectedFile.getAbsolutePath() + " doesn't exist.");
+		}
 	}
 	
 	/**
@@ -386,7 +397,13 @@ public class Launcher {
 	 */
 	private void btnCreateIndex() {
 		try {
-			new CreateIndex(selectedFolder);
+			File selectedPeopleFile = new File(selectedFolder.getAbsolutePath() + Settings.nameOfPeopleFile);
+			if(selectedPeopleFile.exists()) {			//when file doesn't exist, index cannot be created
+				new CreateIndex(selectedFolder);
+			}
+			else {
+				System.out.println("Folder doesn't contain required files.");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

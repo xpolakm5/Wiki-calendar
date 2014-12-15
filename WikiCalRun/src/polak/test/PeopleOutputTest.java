@@ -21,10 +21,10 @@ public class PeopleOutputTest {
 				int i = 0;
 				while (in.ready()) {
 					String s = in.readLine();
-					if (i == 0 && s.equals("Alan Mathison Turing,23.6.1912,7.6.1954")) {
+					if (i == 0 && s.equals("Alan Mathison Turing;23.6.1912;7.6.1954")) {
 						System.out.println("1. element OK");
 						goodElements++;
-					} else if (i == 1 && s.equals("George Boole,2.11.1815,8.12.1864")) {
+					} else if (i == 1 && s.equals("George Boole;2.11.1815;8.12.1864")) {
 						System.out.println("2. element OK");
 						goodElements++;
 					}
